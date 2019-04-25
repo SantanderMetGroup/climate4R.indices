@@ -19,7 +19,7 @@ A list of all available indices and the atomic functions calculating them is pri
 
 ```R
 library(climate4R.indices)
-indicesShow()
+indexShow()
 ?indexGrid   # see the examples 
 ```
 
