@@ -199,7 +199,7 @@ indexGrid <- function(tn = NULL,
         tryCatch({bindGrid(yg, dimension = "time")}, error = function(err){unlist(yg, recursive = FALSE)})
       }
   })
-  out <- suppressWarnings(bindGrid(out.m, dimension = "member"))
+  out <- suppressMessages(suppressWarnings(bindGrid(out.m, dimension = "member")))
   out[["Variable"]] <- list("varName" = index.code, 
                             "level" = out[["Variable"]][["level"]])
   attr(out[["Variable"]], "description") <- metadata$description
