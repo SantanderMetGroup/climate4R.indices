@@ -24,7 +24,7 @@
 #' @param baseline Optional climate4R dataset. Only used if \code{index.code = "P"}, for calculating the relevant percentiles.
 #' @param index.code Character string, indicating the specific code of the index (see Details).
 #' @param time.resolution Output time resolution. Choices are "month", "year" (default) and "climatology".
-#' @param index.arg.list Optional. A list of arguments internally passed to the functions displayed by \code{\link{indexShow}}.
+#' @param ... Optional. A list of arguments internally passed to the functions displayed by \code{\link{indexShow}}.
 #' @template templateParallelParams
 #' @import transformeR
 #' @importFrom parallel stopCluster
@@ -45,12 +45,12 @@
 #' per1 <- indexGrid(tn = EOBS_Iberia_tas,
 #'                  time.resolution = "year",
 #'                  index.code = "P",
-#'                  index.arg.list = list(percent = 90))
+#'                  percent = 90)
 #' per2 <- indexGrid(tn = CFS_Iberia_tas,
 #'                 time.resolution = "year",
 #'                 index.code = "P",
 #'                 baseline = CFS_Iberia_tas,
-#'                 index.arg.list = list(percent = 90))
+#'                 percent = 90)
 #' hdd <- indexGrid(tn = CFS_Iberia_tas,
 #'                  tx = CFS_Iberia_tas,
 #'                  tm = CFS_Iberia_tas,
@@ -65,12 +65,15 @@ indexGrid <- function(tn = NULL,
                       baseline = NULL,
                       index.code,
                       time.resolution = "year",
-                      index.arg.list = list(),
+                      ...,
                       parallel = FALSE,
                       max.ncores = 16,
                       ncores = NULL) {
+  index.arg.list <- list(...)
   index.code <- match.arg(index.code,
-                          choices = c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P"))
+                          choices = c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
+                                      "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn = rep", "dc_agsn", "rn_agsn", 
+                                      "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn"))
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
     message("[", Sys.time(), "] th = 0 for index FD. Use index.code = 'TNth' to set a different threshold")
@@ -112,11 +115,13 @@ indexGrid <- function(tn = NULL,
     if (sum(b) > 1) stop(index.code, " is applied to single variable.")
   }
   grid.list <- list("tn" = tn, "tx" = tx, "tm" = tm, "pr" = pr)[which(as.logical(b))]
+  namesgridlist <- names(grid.list)
   # Operations for the consistency of the grids
   locs <- lapply(grid.list, isRegular)
   if (!any(sum(unlist(locs)) != 0,  sum(unlist(locs)) != length(grid.list))) stop("Regular and Irregular grids can not be combined. See function interpGrid")
   if (length(grid.list) > 1) {
     grid.list <- intersectGrid(grid.list, type = "temporal", which.return = 1:length(grid.list))
+    names(grid.list) <- namesgridlist
     grid.list <- suppressMessages(lapply(grid.list, function(i) interpGrid(i, getGrid(grid.list[[1]]))))
   }
   grid.list <- lapply(grid.list, function(r) redim(r, drop = TRUE))
@@ -182,11 +187,29 @@ indexGrid <- function(tn = NULL,
                               clim.fun = list(FUN = percentile, value = index.arg.list[["value"]])), drop = TRUE)[["Data"]])
           index.arg.list[["value"]] <- NULL
         }
-       }
+      }
+      # EXCEPTION for FAO INDICES (require lat, dates, and NO temporal subsetting)
+      if (metadata$indexfun == "agroindexFAO") {
+        if (time.resolution != "year") message(index.code, " is calculated yaear by year by definition. argument time.resolution ignored.")
+        out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
+        input.arg.list <- lapply(grid.list.aux, function(d) d[["Data"]])
+        datess <- as.Date(grid.list.aux[[1]][["Dates"]][["start"]])
+        datess <- cbind(as.numeric(format(datess, "%Y")), as.numeric(format(datess, "%m")), as.numeric(format(datess, "%d")))
+        lats <- grid.list.aux[[1]][["xyCoords"]][["y"]]
+        latloop <- lapply(1:length(lats), function(l) {
+                              lonloop <- lapply(1:getShape(grid.list.aux[[1]])["lon"], function(lo) {
+                                     do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), "lat" = list(lats[l]), "dates" = list(datess), "index.code" = list(index.code)))
+                              })
+                              do.call("abind", list(lonloop, along = 0))
+                  })
+        out.aux[["Data"]] <- unname(aperm(do.call("abind", list(latloop, along = 0)), c(3, 1, 2)))
+        attr(out.aux[["Data"]], "dimensions") <- c("time", "lat", "lon")
+        out.aux
+      } else {
        yg <- lapply(years, function(yi){
-          mg <- lapply(months, function(mi){
+          mg <- lapply(months, function(mi) {
+            out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
             grid.list.sub <- lapply(grid.list.aux, function(x) subsetGrid(x, years = yi, season = mi))
-            out.aux <- suppressMessages(climatology(grid.list.sub[[1]]))
             input.arg.list <- lapply(grid.list.sub, function(d) d[["Data"]])
             if (index.code == "P") names(input.arg.list) <- "var"
             input.arg.list <- c(input.arg.list, index.arg.list)
@@ -198,6 +221,7 @@ indexGrid <- function(tn = NULL,
         })
         tryCatch({bindGrid(yg, dimension = "time")}, error = function(err){unlist(yg, recursive = FALSE)})
       }
+    }
   })
   out <- suppressMessages(suppressWarnings(bindGrid(out.m, dimension = "member")))
   out[["Variable"]] <- list("varName" = index.code, 
