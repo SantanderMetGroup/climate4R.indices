@@ -30,6 +30,7 @@
 #' @param txh “hot” tmax (degC)
 #' @param tnh “hot” tmin (degC)
 #' @import transformeR
+#' @importFrom stats na.omit
 #' @author R. Manzanas
 #' @export
 
