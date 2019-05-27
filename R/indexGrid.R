@@ -191,7 +191,7 @@ indexGrid <- function(tn = NULL,
       # EXCEPTION for FAO INDICES (require lat, dates, and NO temporal subsetting)
       if (metadata$indexfun == "agroindexFAO") {
         if (time.resolution != "year") message(index.code, " is calculated yaear by year by definition. argument time.resolution ignored.")
-        out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
+        out.aux <- suppressMessages(aggregateGrid(grid.list.aux[[1]], aggr.y = list(FUN = "mean", na.rm = TRUE)))
         input.arg.list <- lapply(grid.list.aux, function(d) d[["Data"]])
         datess <- as.Date(grid.list.aux[[1]][["Dates"]][["start"]])
         datess <- cbind(as.numeric(format(datess, "%Y")), as.numeric(format(datess, "%m")), as.numeric(format(datess, "%d")))
