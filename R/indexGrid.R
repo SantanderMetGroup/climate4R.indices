@@ -73,7 +73,7 @@ indexGrid <- function(tn = NULL,
   choices <- c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
                        "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
                        "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn")
-  if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index".)
+  if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
     message("[", Sys.time(), "] th = 0 for index FD. Use index.code = 'TNth' to set a different threshold")
