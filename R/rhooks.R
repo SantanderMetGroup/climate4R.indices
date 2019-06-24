@@ -27,6 +27,6 @@
             packageStartupMessage(ver.mess)
         }
     }
-    packageStartupMessage("Use 'indicesShow()' for an overview of the available ETCCDI indices")
+    packageStartupMessage("Use 'indexShow()' for an overview of the available ETCCDI indices")
 }
 # End
