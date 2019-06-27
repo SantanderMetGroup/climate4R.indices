@@ -58,6 +58,7 @@
 #'                  index.code = "HDD")
 
 
+
 indexGrid <- function(tn = NULL,
                       tx = NULL,
                       tm = NULL,
@@ -101,7 +102,7 @@ indexGrid <- function(tn = NULL,
     }
   }
   aux <- read.master()
-  metadata <- aux[grep(index.code, aux$code, fixed = TRUE), ]
+  metadata <- aux[grep(paste0("^", index.code, "$"), aux$code, fixed = FALSE), ]
   a <- c(!is.null(tn), !is.null(tx), !is.null(tm), !is.null(pr)) %>% as.numeric()
   if (!index.code %in% c("P")) {
     b <- metadata[ , 4:7] %>% as.numeric()
