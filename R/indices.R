@@ -26,7 +26,6 @@ tn.th <- function(tn, th = 0) {sum(tn < th, na.rm = TRUE)}
 #' over the primary growing season for mid-latitude agricultural areas in the northern Hemisphere (April-September).
 #' @param tm Vector with mean temperature data
 #' @param th Threshold value (Defalut is 5º)
-#' @details 
 #' @author M. Iturbide
 #' @export
 
