@@ -5,9 +5,8 @@
 \title{Climate Indices in Climate4R}
 \usage{
 indexGrid(tn = NULL, tx = NULL, tm = NULL, pr = NULL,
-  baseline = NULL, index.code, time.resolution = "year",
-  index.arg.list = list(), parallel = FALSE, max.ncores = 16,
-  ncores = NULL)
+  baseline = NULL, index.code, time.resolution = "year", ...,
+  parallel = FALSE, max.ncores = 16, ncores = NULL)
 }
 \arguments{
 \item{tn}{A climate4R dataset of daily minimum temperature (degrees C)}
@@ -24,7 +23,7 @@ indexGrid(tn = NULL, tx = NULL, tm = NULL, pr = NULL,
 
 \item{time.resolution}{Output time resolution. Choices are "month", "year" (default) and "climatology".}
 
-\item{index.arg.list}{Optional. A list of arguments internally passed to the functions displayed by \code{\link{indexShow}}.}
+\item{...}{Optional. A list of arguments internally passed to the functions displayed by \code{\link{indexShow}}.}
 
 \item{parallel}{Logical. Should parallel execution be used?}
 
@@ -66,12 +65,12 @@ fd <- indexGrid(tn = EOBS_Iberia_tas,
 per1 <- indexGrid(tn = EOBS_Iberia_tas,
                  time.resolution = "year",
                  index.code = "P",
-                 index.arg.list = list(percent = 90))
+                 percent = 90)
 per2 <- indexGrid(tn = CFS_Iberia_tas,
                 time.resolution = "year",
                 index.code = "P",
                 baseline = CFS_Iberia_tas,
-                index.arg.list = list(percent = 90))
+                percent = 90)
 hdd <- indexGrid(tn = CFS_Iberia_tas,
                  tx = CFS_Iberia_tas,
                  tm = CFS_Iberia_tas,

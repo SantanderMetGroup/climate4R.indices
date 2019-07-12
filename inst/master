@@ -6,3 +6,15 @@ GDD;Growing_Degree_Days;gdd.th;0;0;1;0;degC;Accumulated_sum_of_degrees_of_and_wh
 CDD;Cooling_Degree_Days;cdd.th;1;1;1;0;days;Count_of_days_being_TH=22degC
 HDD;Heating_Degree_Days;hdd.th;1;1;1;0;days;Count_of_days_being_TH=15.5degC
 P;Percentile;percentile;0;0;0;0;;Climate_value_or_percentile
+dt_st_rnagsn;first_Agronomic_Season_start_date;agroindexFAO;1;1;0;1;;first_Agronomic_Season_start_date
+nm_flst_rnagsn;Number_of_false_Agronomic_Season_starts;agroindexFAO;1;1;0;1;;Number_of_false_starts
+dt_fnst_rnagsn;Final_Agronomic_Season_start_date;agroindexFAO;1;1;0;1;;Final_start_date
+dt_ed_rnagsn;Agronomic_Season_end_date;agroindexFAO;1;1;0;1;;End_date
+dl_agsn;Agronomic_Season_length;agroindexFAO;1;1;0;1;;Length
+dc_agsn;Number_of_rainy_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_rainy_days
+rn_agsn;Total_amount_of_rain_in_Agronomic_Season;agroindexFAO;1;1;0;1;mm;Total_amount_of_rain
+avrn_agsn;Average_amount_of_rain_in_rainy_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;mm;Average_amount_of_rain
+dc_rnlg_agsn;Number_of_days_with_"high"_rain_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_days_with_"high"_rain
+tm_agsn;Average_daily_tas_in_Agronomic_Season;agroindexFAO;1;1;0;1;degC;Average_daily_mean_TM
+dc_txh_agsn;Number_of_"hot"_tmax_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TX_days
+dc_tnh_agsn;Number_of_"hot"_tmin_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TN_days
