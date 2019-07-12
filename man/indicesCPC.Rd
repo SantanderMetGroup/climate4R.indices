@@ -4,11 +4,11 @@
 \alias{indicesCPC}
 \title{Calculation of CPC circulation indices from grid.}
 \usage{
-indicesCPC(data, base, ref, season, index.code, match = match,
+indicesCPC(grid, base, ref, season, index.code, match = match,
   n.pcs = n.pcs, rot = rot, members = members)
 }
 \arguments{
-\item{data}{A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.}
+\item{grid}{A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.}
 
 \item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 
@@ -16,7 +16,7 @@ indicesCPC(data, base, ref, season, index.code, match = match,
 
 \item{season}{Selected month(s) for the calculation. Default: NULL (i.e. as input grid).}
 
-\item{index.code}{Circulation index (or vector of indices) to be computed. See \code{?indexCircShow()} for details.}
+\item{index.code}{Circulation index (or vector of indices with same input variables) to be computed. See \code{circIndexShow()} for details.}
 
 \item{match}{Character string with the criterion to be used for the detection of CPC indices. Options "spatial" or "temporal". Default: "spatial". See details.}
 
@@ -45,7 +45,7 @@ The argument \code{match} is used to assign each rEOF to a circulation index and
 }
 \examples{
 \dontrun{ 
-data("NCEP_hgt500_1981_2010")
-cpc <- circulationIndices(hgt=NCEP_hgt500_1981_2010, index.code = c("NAO", "EA","PNA"))
+data(NCEP_hgt500_2001_2010)
+cpc <- indicesCPC(grid=NCEP_hgt500_2001_2010, index.code = c("NAO", "EA","PNA"), season=1)
 }
 }

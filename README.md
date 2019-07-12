@@ -26,8 +26,8 @@ indexShow()
 A set of circulation indices is also available:
 ```R
 library(climate4R.indices)
-indexCircShow()
-?circulationIndices   # see the examples 
+circIndexShow()
+?circIndexGrid   # see the examples 
 ```
 
 Reference and further information: 

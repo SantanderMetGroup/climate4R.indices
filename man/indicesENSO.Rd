@@ -4,10 +4,10 @@
 \alias{indicesENSO}
 \title{Calculation of ENSO indices from grid.}
 \usage{
-indicesENSO(data, base, ref, season, index.code, members = members)
+indicesENSO(grid, base, ref, season, index.code, members = members)
 }
 \arguments{
-\item{data}{A grid (gridded or station dataset), or multimember grid object of sea surface temperature.}
+\item{grid}{A grid (gridded or station dataset), or multimember grid object of sea surface temperature.}
 
 \item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 
@@ -15,7 +15,7 @@ indicesENSO(data, base, ref, season, index.code, members = members)
 
 \item{season}{Selected month(s) for the calculation. Default: NULL (i.e. as input grid).}
 
-\item{index.code}{Circulation index (or vector of indices) to be computed. See \code{?indexCircShow()} for details.}
+\item{index.code}{Circulation index (or vector of indices with same input variables) to be computed. See \code{circIndexShow()} for details.}
 
 \item{members}{Select number of members.}
 }
@@ -35,7 +35,7 @@ The calculation of ENSO indices is based on \url{https://climatedataguide.ucar.e
 }
 \examples{
 \dontrun{ 
-data("ERAInterim_sst_1981_2010")
-nino <- circulationIndices(sst=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
+data(ERAInterim_sst_1981_2010)
+nino <- indicesENSO(grid=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
 }
 }

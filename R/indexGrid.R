@@ -210,9 +210,6 @@ indexGrid <- function(tn = NULL,
 }
 
 
-
-
-
 #' @title List all available Indices
 #' @description Print a table with a summary of the available indices
 #' @return Print a table on the screen with the following columns:
@@ -231,23 +228,7 @@ indexShow <- function() {
   read.master()
 }
 
-#' @title List all available circulation indices
-#' @description Print a table with a summary of the available circulation indices
-#' @return Print a table on the screen with the following columns:
-#' \itemize{
-#' \item \strong{code}: Code of the index. This is the character string used as input value
-#' for the argument \code{index.code} in \code{\link{circulationIndices.R}}
-#' \item \strong{longname}: Long description of the circulation index.
-#' \item \strong{fun}: The name of the function used to calculate it.
-#' \item \strong{zg, hgt, sst, slp}: A logical value (0/1) indicating the input variables required for index calculation
-#' \item \strong{reference}: Reference for the implemented calculation.
-#' }
-#' @author J. Bedia, M. Iturbide, A. Casanueva
-#' @export
 
-indexCircShow <- function() {
-  read.masterCirc()
-}
 
 #' @keywords internal
 #' @importFrom magrittr %>%
@@ -258,29 +239,4 @@ read.master <- function() {
                                                                       sep = ";",
                                                                       stringsAsFactors = FALSE,
                                                                       na.strings = "")
-}
-
-#' @keywords internal
-#' @importFrom magrittr %>%
-#' @importFrom utils read.table
-
-read.masterCirc <- function() {
-  system.file("master_circulation", package = "climate4R.indices") %>% read.table(header = TRUE,
-                                                                      sep = ";",
-                                                                      stringsAsFactors = FALSE,
-                                                                      na.strings = "")
-}
-
-#' @title Read CPC teleconnections
-#' @keywords internal
-#' @importFrom magrittr %>%
-#' @importFrom utils read.csv
-#' @details Downloaded from wget ftp://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/tele_index.nh
-#' These are monthly tabulated indices since 1950 to present.  Indices are standardized by the 1981-2010 climatology.
-
-read.tele <- function() {
-  names <- c("Year","Month", "NAO","EA","WP","EP/NP","PNA","EA/WR","SCA","TNH","POL","PT","Expl.Var.")
-  system.file("tele_index.nh", package = "climate4R.indices") %>% read.csv(skip=17,strip.white=T,sep='', 
-                                                                           na.strings ="-99.90", stringsAsFactors = FALSE,
-                                                                           header=TRUE, col.names = names)
 }

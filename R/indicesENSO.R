@@ -17,8 +17,8 @@
 
 #' @title Calculation of ENSO indices from grid.
 #' @description Calculate ENSO indices of grids or multimember grids. 
-#' @param data A grid (gridded or station dataset), or multimember grid object of sea surface temperature.
-#' @param index.code Circulation index (or vector of indices) to be computed. See \code{?indexCircShow()} for details.
+#' @param grid A grid (gridded or station dataset), or multimember grid object of sea surface temperature.
+#' @param index.code Circulation index (or vector of indices with same input variables) to be computed. See \code{circIndexShow()} for details.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
@@ -34,14 +34,14 @@
 #' @details 
 #' The calculation of ENSO indices is based on \url{https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni}, consisting of SST anomalies, using a different size moving window.
 #' @export
-#' 
+#' @importFrom utils data
 #' @examples \dontrun{ 
-#' data("ERAInterim_sst_1981_2010")
-#' nino <- circulationIndices(sst=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
+#' data(ERAInterim_sst_1981_2010)
+#' nino <- indicesENSO(grid=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
 #' }
 
 
-indicesENSO <- function(data, base, ref,
+indicesENSO <- function(grid, base, ref,
                        season, index.code, 
                        members=members){
   
@@ -50,7 +50,7 @@ indicesENSO <- function(data, base, ref,
   ind.tele <- which(enso.index %in% index.code)
 
   #  *** CALCULATE MONTHLY ANOMALIES *** 
-  data.cen <- redim(scaleGrid(data, base, ref, time.frame = "monthly", type="center"), member = T)
+  data.cen <- redim(scaleGrid(grid, base, ref, time.frame = "monthly", type="center"), member = T)
 
   ls <- lapply(1:length(ind.tele), function(p){
  

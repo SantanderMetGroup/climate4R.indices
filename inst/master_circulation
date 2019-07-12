@@ -1,4 +1,4 @@
-code;longname;fun;zg;hgt;sst;slp;reference
+code;longname;fun;z;zg;sst;psl;reference
 NAO;North_Atlantic_Oscillation;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
 EA;East Atlantic_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
 WP;West_Pacific_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml

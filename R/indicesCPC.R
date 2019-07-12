@@ -17,8 +17,8 @@
 
 #' @title Calculation of CPC circulation indices from grid.
 #' @description Calculate circulation indices of grids or multimember grids. 
-#' @param data A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.
-#' @param index.code Circulation index (or vector of indices) to be computed. See \code{?indexCircShow()} for details.
+#' @param grid A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.
+#' @param index.code Circulation index (or vector of indices with same input variables) to be computed. See \code{circIndexShow()} for details.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
@@ -41,22 +41,23 @@
 #' The argument \code{match} is used to assign each rEOF to a circulation index and pattern. Matching is based on 'temporal' or 'spatial' correction of the CPC original (NCEP Reanalysis-based) indices.
 
 #' @export
-#' 
+#' @importFrom stats cor 
+#' @importFrom utils data
 #' @examples \dontrun{ 
-#' data("NCEP_hgt500_1981_2010")
-#' cpc <- circulationIndices(hgt=NCEP_hgt500_1981_2010, index.code = c("NAO", "EA","PNA"))
+#' data(NCEP_hgt500_2001_2010)
+#' cpc <- indicesCPC(grid=NCEP_hgt500_2001_2010, index.code = c("NAO", "EA","PNA"), season=1)
 #' }
 
 
-indicesCPC <- function(data, base, ref,
+indicesCPC <- function(grid, base, ref,
                        season, index.code, 
                        match=match, n.pcs=n.pcs, rot=rot, 
                        members=members){
 
-     
+    cpc <- NULL 
     cpc.index <- c("NAO", "EA", "WP", "EP/NP", "PNA", "EA/WR", "SCA", "TNH", "POL", "PT")
     ind.tele <- which(cpc.index %in% index.code)
-    years <- unique(getYearsAsINDEX(data))
+    years <- unique(getYearsAsINDEX(grid))
 
     # *** READ CPC TELECONNECTION INDICES *** 
     # Downloaded from wget ftp://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/tele_index.nh
@@ -64,7 +65,7 @@ indicesCPC <- function(data, base, ref,
     ntele <- ncol(tele)-3
     
     #  *** CALCULATE MONTHLY STANDARDIZE ANOMALIES *** 
-    data.cen <- redim(scaleGrid(data, base, ref, time.frame = "monthly", type="standardize"), member = T) 
+    data.cen <- redim(scaleGrid(grid, base, ref, time.frame = "monthly", type="standardize"), member = T) 
     
     # *** SUBSET MONTHLY WITH 3-MONTH MOVING WINDOW FOR PCA CALCULATION ***
     pca <- lapply(getSeason(data.cen), function(mon){
@@ -89,7 +90,7 @@ indicesCPC <- function(data, base, ref,
       ls <- lapply(1:length(ind.tele), function(p){
 
         count.tele <- ind.tele[p]
-        cpc.interp <- interpGrid(cpc[[count.tele]], new.coordinates =  list(x=data.cen$xyCoords$x, y=data.cen$xyCoords$y), method = "bilinear")
+        cpc.interp <- suppressMessages(interpGrid(cpc[[count.tele]], new.coordinates =  list(x=data.cen$xyCoords$x, y=data.cen$xyCoords$y), method = "bilinear"))
         
         res <- vector("list", members)
         for(x in 1:members){
