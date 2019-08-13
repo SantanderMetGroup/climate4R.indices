@@ -15,7 +15,7 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#' @title Calculation of circulation indices of Grids
+#' @title Calculation of circulation indices of grids
 #' @description Calculate circulation indices of grids or multimember grids. 
 #' @param zg A grid or multimember grid object of geopotential height.
 #' @param z A grid or multimember grid object of geopotential.
@@ -26,7 +26,7 @@
 #' 
 #' @return A list of circulation indices (and members, if applicable) with:
 #' \itemize{
-#' \item index: vector with the time series of the teleconnection index.
+#' \item index: vector with the time series of the teleconnection/circulation index.
 #' \item pattern: matrix with the spatial pattern of the teleconnection.
 #' \item dates and coordinates as list attributes.
 #' \item further arguments related to the CPC indices, such as the corresponding (r)EOF and (temporal or spatial, depending on \code{'match'}) correlation with the original index.
@@ -34,8 +34,8 @@
 #' 
 #' @details
 #' \code{\link{circIndexShow}} displays on screen the full list of available circulation indices and their codes.
-#' Several indices can be calculated at the same time, as long as they depend on the same input variable(s) and spatial domain. All indices are calculated on a monthly basis. Therefore a temporal aggregation is performed if input data is daily.
-#' Results for the desired months in \code{season} are provided, but it is recommended to have full series as input, since many indices use a moving window for the calculation.
+#' Several indices can be calculated at the same time, as long as they depend on the same input variable(s) and spatial domain. CPC and ENSO indices are calculated on a monthly basis. Therefore a temporal aggregation is performed if input data is daily.
+#' Results for the desired months in \code{season} are provided, but it is recommended to have full series as input, since CPC and ENSO indices use a moving window for the calculation.
 #' 
 #' \strong{CPC indices}
 #' 
@@ -46,6 +46,10 @@
 #' \strong{ENSO indices}
 #' 
 #' The calculation of ENSO indices is based on \url{https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni}, consisting of SST anomalies, using a moving window of different size for each index.
+#' 
+#' \strong{WT indices}
+#' 
+#' (to be added)
 #' 
 #' @export
 #' @importFrom utils data
@@ -74,8 +78,9 @@ circIndexGrid <- function(zg=NULL,
   index.code <- toupper(index.code)
   cpc.index <- c("NAO", "EA", "WP", "EP/NP", "PNA", "EA/WR", "SCA", "TNH", "POL", "PT")
   enso.index <- c("NINO3.4", "ONI")
-  if(!any(match(c(cpc.index,enso.index) ,index.code, nomatch=FALSE))) stop("Non valid index selected: Use circIndexShow() to select an index.", call. = FALSE)  
-  if(any(match(cpc.index,index.code, nomatch=FALSE)) & any(match(enso.index,index.code, nomatch=FALSE))) stop("Indices require different input variables and spatial domains, see circIndexShow()", call. = FALSE)  
+  wt.index <- c("WT.KMEANS", "WT.SOM", "WT.HIERARCHICAL","WT.LAMB")
+  if(!any(match(c(cpc.index,enso.index,wt.index) ,index.code, nomatch=FALSE))) stop("Non valid index selected: Use circIndexShow() to select an index.", call. = FALSE)  
+  if(any(match(cpc.index,index.code, nomatch=FALSE)) & any(match(enso.index,index.code, nomatch=FALSE)) & any(match(wt.index,index.code, nomatch=FALSE))) stop("Indices require different input variables and spatial domains, see circIndexShow()", call. = FALSE)  
   
 
   # *** CHECK VARIABLE NAME AND DOMAIN ***
@@ -102,13 +107,34 @@ circIndexGrid <- function(zg=NULL,
     lon <- c(-170,-120)
    } 
   
+  if(any(match(wt.index,index.code, nomatch = FALSE))){
+    if(!is.null(zg)) {
+      grid <- zg
+    } else if(!is.null(z)){
+      grid <- z
+    } else if(!is.null(sst)){
+      grid <- sst
+    } else if(!is.null(psl)){
+      grid <- psl
+    } 
+    message("Performing clustering for variable ", getVarNames(grid))
+  }
+  
   # *** SET DOMAIN ***
-  if(min(grid$xyCoords$x) > lon[1] | max(grid$xyCoords$x) < lon[2]) stop("Longitudes do not cover the domain", call. = FALSE)
-  if(min(grid$xyCoords$y) > lat[1] | max(grid$xyCoords$y) < lat[2]) stop("Latitudes do not cover the domain", call. = FALSE)
-  grid <- subsetGrid(grid, latLim =  lat, lonLim=lon)
-
+  if(any(match(cpc.index,index.code, nomatch=FALSE)) | any(match(enso.index,index.code, nomatch=FALSE))){
+    if(min(grid$xyCoords$x) > lon[1] | max(grid$xyCoords$x) < lon[2]) stop("Longitudes do not cover the domain", call. = FALSE)
+    if(min(grid$xyCoords$y) > lat[1] | max(grid$xyCoords$y) < lat[2]) stop("Latitudes do not cover the domain", call. = FALSE)
+    grid <- subsetGrid(grid, latLim =  lat, lonLim=lon)
+  }
+  
   # *** REQUIRE MONTHLY DATA ***
-  if(getTimeResolution(grid)!="MM" | length(getSeason(grid))!=12) stop("Monthly data for full years are needed", call. = FALSE)
+  if(any(match(cpc.index,index.code, nomatch=FALSE)) | any(match(enso.index,index.code, nomatch=FALSE))){
+    if(getTimeResolution(grid)!="MM"){
+      message("Performing monthly aggregation")
+      grid <- aggregateGrid(grid, aggr.m = list(FUN = "mean", na.rm = TRUE))
+    }
+    if(length(getSeason(grid))!=12) stop(paste0("Data for full years are needed for ",index.code), call. = FALSE)
+  }
   
   # *** CHECK MEMBER DIMENSION ***
   if(is.null(members)) members <- getShape(redim(grid, member=T), "member") else  members <- as.integer(members)
@@ -143,7 +169,7 @@ circIndexGrid <- function(zg=NULL,
   # *** START INDICES CALCULATION ***
   if(any(match(cpc.index,index.code, nomatch=FALSE))){
   
-    aux1 <- indicesCPC(grid=data.w, season=season, 
+    aux <- indicesCPC(grid=data.w, season=season, 
                       index.code=index.code, base=base, ref=ref,
                       match=match, n.pcs=n.pcs, rot=rot, 
                       members= members)
@@ -152,7 +178,7 @@ circIndexGrid <- function(zg=NULL,
   } 
   if(any(match(enso.index,index.code, nomatch = FALSE))){
     
-    aux2 <- indicesENSO(grid=data.w, season=season, 
+    aux <- indicesENSO(grid=data.w, season=season, 
                       index.code=index.code, 
                       base=base, ref=ref,
                       members= members)
@@ -160,7 +186,17 @@ circIndexGrid <- function(zg=NULL,
     
   } 
   
-  index <- c(aux1,aux2)
+  if(any(match(wt.index,index.code, nomatch = FALSE))){
+    
+    stop("Clustering under construction", call. = FALSE)
+    # depending on the index.code call to a different clustering type.
+    # argument k needs to be provided to circIndexGrid()
+    #aux <- transformeR::clusterGrid()
+    
+    
+  } 
+  
+  index <- aux
   attr(index, "class") <- "circulationIndex"
   return(index)
 }
