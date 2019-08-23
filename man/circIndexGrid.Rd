@@ -32,7 +32,7 @@ circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
 
 \item{rot}{Logical. Should VARIMAX-Rotation be performed? Default: TRUE. This argument is only relevant for CPC indices. See details.}
 
-\item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See \link[TransformeR]{clusterGrid} for more details.}
+\item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See details.}
 
 \item{members}{Select number of members.}
 }
