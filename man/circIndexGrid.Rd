@@ -6,7 +6,8 @@
 \usage{
 circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
   index.code, season = NULL, base = NULL, ref = NULL,
-  match = "spatial", n.pcs = 10, rot = TRUE, members = NULL)
+  match = "spatial", n.pcs = 10, rot = TRUE, centers = NULL,
+  members = NULL)
 }
 \arguments{
 \item{zg}{A grid or multimember grid object of geopotential height.}
@@ -30,6 +31,8 @@ circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
 \item{n.pcs}{Integer vector with the number of EOFs to be retained for the CPC indices. Default: 10. See details.}
 
 \item{rot}{Logical. Should VARIMAX-Rotation be performed? Default: TRUE. This argument is only relevant for CPC indices. See details.}
+
+\item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See \link[TransformeR]{clusterGrid} for more details.}
 
 \item{members}{Select number of members.}
 }
