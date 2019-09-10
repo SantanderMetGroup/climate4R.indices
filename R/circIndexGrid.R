@@ -23,6 +23,7 @@
 #' @param psl A grid or multimember grid object of sea level pressure.
 #' @inheritParams indicesCPC
 #' @inheritParams indicesENSO
+#' @inheritParams indicesWT
 #' 
 #' @return A list of circulation indices (and members, if applicable) with:
 #' \itemize{
@@ -69,7 +70,8 @@ circIndexGrid <- function(zg=NULL,
                            index.code, 
                            season=NULL, 
                            base=NULL, ref=NULL,
-                           match="spatial", n.pcs=10, rot=TRUE, 
+                           match="spatial", n.pcs=10, rot=TRUE,
+                           centers=NULL,
                            members=NULL){
 
 #  if(length(season)>1) stop("More than one season is not available yet", call. = FALSE)  
@@ -188,11 +190,20 @@ circIndexGrid <- function(zg=NULL,
   
   if(any(match(wt.index,index.code, nomatch = FALSE))){
     
-    stop("Clustering under construction", call. = FALSE)
-    # depending on the index.code call to a different clustering type.
-    # argument k needs to be provided to circIndexGrid()
-    #aux <- transformeR::clusterGrid()
+    if (index.code=="WT.KMEANS"){
+      index.code <- "kmeans"
+    }else if (index.code=="WT.SOM"){
+      index.code <- "som"
+    }else if(index.code=="WT.HIERARCHICAL"){
+      index.code <- "hierarchical"
+    }else if (index.code=="WT.LAMB"){
+      stop("Clustering type under construction", call. = FALSE)
+    }
     
+    aux <- indicesWT(grid=grid, season=season, 
+                     cluster.type=index.code, centers=centers 
+                     #rot=rot, members=members
+                     )
     
   } 
   
