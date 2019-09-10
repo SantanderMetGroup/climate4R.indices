@@ -72,7 +72,7 @@ circIndexGrid <- function(zg=NULL,
                            match="spatial", n.pcs=10, rot=TRUE, 
                            members=NULL){
 
-  if(length(season)>1) stop("More than one season is not available yet", call. = FALSE)  
+#  if(length(season)>1) stop("More than one season is not available yet", call. = FALSE)  
   
   # *** CHECK INDICES NAME *** # include here any implemented index
   index.code <- toupper(index.code)
