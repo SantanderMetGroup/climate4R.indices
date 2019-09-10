@@ -23,7 +23,8 @@ indexShow()
 ?indexGrid   # see the examples 
 ```
 
-A set of circulation indices is also available:
+A set of circulation indices is also available, developed in the framework of the [INDECIS project](http://www.indecis.eu/):
+
 ```R
 library(climate4R.indices)
 circIndexShow()
