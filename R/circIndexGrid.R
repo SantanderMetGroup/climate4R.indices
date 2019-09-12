@@ -74,8 +74,7 @@ circIndexGrid <- function(zg=NULL,
                            centers=NULL,
                            members=NULL){
 
-#  if(length(season)>1) stop("More than one season is not available yet", call. = FALSE)  
-  
+
   # *** CHECK INDICES NAME *** # include here any implemented index
   index.code <- toupper(index.code)
   cpc.index <- c("NAO", "EA", "WP", "EP/NP", "PNA", "EA/WR", "SCA", "TNH", "POL", "PT")
@@ -83,7 +82,6 @@ circIndexGrid <- function(zg=NULL,
   wt.index <- c("WT.KMEANS", "WT.SOM", "WT.HIERARCHICAL","WT.LAMB")
   if(!any(match(c(cpc.index,enso.index,wt.index) ,index.code, nomatch=FALSE))) stop("Non valid index selected: Use circIndexShow() to select an index.", call. = FALSE)  
   if(any(match(cpc.index,index.code, nomatch=FALSE)) & any(match(enso.index,index.code, nomatch=FALSE)) & any(match(wt.index,index.code, nomatch=FALSE))) stop("Indices require different input variables and spatial domains, see circIndexShow()", call. = FALSE)  
-  
 
   # *** CHECK VARIABLE NAME AND DOMAIN ***
   if(any(match(cpc.index,index.code, nomatch = FALSE))){
@@ -130,6 +128,7 @@ circIndexGrid <- function(zg=NULL,
   }
   
   # *** REQUIRE MONTHLY DATA ***
+  if(is.null(season)) season <- getSeason(grid)
   if(any(match(cpc.index,index.code, nomatch=FALSE)) | any(match(enso.index,index.code, nomatch=FALSE))){
     if(getTimeResolution(grid)!="MM"){
       message("Performing monthly aggregation")

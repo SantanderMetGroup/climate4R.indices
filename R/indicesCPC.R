@@ -91,31 +91,32 @@ indicesCPC <- function(grid, base, ref,
 
         count.tele <- ind.tele[p]
         cpc.interp <- suppressMessages(interpGrid(cpc[[count.tele]], new.coordinates =  list(x=data.cen$xyCoords$x, y=data.cen$xyCoords$y), method = "bilinear"))
-        browser()
         res <- vector("list", members)
         for(x in 1:members){
+          res[[x]] <- vector("list", length(season))
           for(mon in season){
-            
-            ind.mon <- seq(mon,dim(pca[[mon]][[1]][[x]]$PCs)[1],3)
+            if(mon==1) {count.mon <- 1} else if(mon==12) count.mon <- 3 else count.mon <- 2
+            ind.mon <- seq(count.mon,dim(pca[[mon]][[1]][[x]]$PCs)[1],3)
             cpc.redim <- array3Dto2Dmat(cpc.interp$Data)[mon,] 
             corr.pattern <- cor(pca[[mon]][[1]][[x]]$EOFs, cpc.redim)
           
             # Select the EOF that maximizes spatial corr (and take sign)
             idx <- which.max(abs(corr.pattern))
-            res[[x]]$index <- pca[[mon]][[1]][[x]]$PCs[ind.mon, idx] * sign(corr.pattern[idx])
-            attr(res[[x]]$index, "dimensions") <- "time"
+            res[[x]][[mon]]$index <- pca[[mon]][[1]][[x]]$PCs[ind.mon, idx] * sign(corr.pattern[idx])
+            attr(res[[x]][[mon]]$index, "dimensions") <- "time"
             patt <- pca[[mon]][[1]][[x]]$EOFs[,idx] * sign(corr.pattern[idx])
-            res[[x]]$pattern <- matrix(patt, nrow = length(data.cen$xyCoords$y), ncol = length(data.cen$xyCoords$x), byrow = FALSE) #redim
-            attr(res[[x]]$pattern, "dimensions") <- c("lat","lon")
-            attr(res[[x]], "ind.eof") <- idx
-            attr(res[[x]], "sign.eof") <- sign(corr.pattern[idx])
-            attr(res[[x]], "corr.eof") <- corr.pattern[idx]
-            attr(res[[x]], "match") <- match
+            res[[x]][[mon]]$pattern <- matrix(patt, nrow = length(data.cen$xyCoords$y), ncol = length(data.cen$xyCoords$x), byrow = FALSE) #redim
+            attr(res[[x]][[mon]]$pattern, "dimensions") <- c("lat","lon")
+            attr(res[[x]][[mon]], "ind.eof") <- idx
+            attr(res[[x]][[mon]], "sign.eof") <- sign(corr.pattern[idx])
+            attr(res[[x]][[mon]], "corr.eof") <- corr.pattern[idx]
+            attr(res[[x]][[mon]], "match") <- match
+            attr(res[[x]][[mon]], "season") <- mon
+            attr(res[[x]][[mon]], "dates_start") <- attr(pca[[mon]], "dates_start")[ind.mon]
+            attr(res[[x]][[mon]], "dates_end") <- attr(pca[[mon]], "dates_end")[ind.mon]
           }
+          names(res[[x]]) <- paste0("Month_", season)
         }
-        attr(res, "season") <- season
-        attr(res, "dates_start") <- attr(pca[[mon]], "dates_start")[ind.mon]
-        attr(res, "dates_end") <- attr(pca[[mon]], "dates_end")[ind.mon]
         attr(res, "xCoords") <- data.cen$xyCoords$x
         attr(res, "yCoords") <- data.cen$xyCoords$y
         attr(res, "projection") <- attr(data.cen$xyCoords, "projection")
@@ -132,29 +133,32 @@ indicesCPC <- function(grid, base, ref,
           count.tele <- ind.tele[p]
           res <- vector("list", members)
           for(x in 1:members){
+            res[[x]] <- vector("list", length(season))
             for(mon in season){
-            
+              
               # *** TEMPORAL CORRELATION BETWEEN CALCULATED PCs AND CPC TELECONNECTIONS ***
-              ind.mon <- seq(mon,dim(pca[[mon]][[1]][[x]]$PCs)[1],3)
+              if(mon==1) {count.mon <- 1} else if(mon==12) count.mon <- 3 else count.mon <- 2
+              ind.mon <- seq(count.mon,dim(pca[[mon]][[1]][[x]]$PCs)[1],3)
               ind.mon.t <- which(tele$Month==mon & tele$Year>=years[1] & tele$Year <=years[length(years)])
               corr.index <- cor(pca[[mon]][[1]][[x]]$PCs[ind.mon,], tele[[(count.tele+2)]][ind.mon.t])
           
               # Select the PC that maximizes temporal corr (and take sign)
               idx <- which.max(abs(corr.index))
-              res[[x]]$index <- pca[[mon]][[1]][[x]]$PCs[ind.mon, idx] * sign(corr.index[idx])
-              attr(res[[x]]$index, "dimensions") <- "time"
+              res[[x]][[mon]]$index <- pca[[mon]][[1]][[x]]$PCs[ind.mon, idx] * sign(corr.index[idx])
+              attr(res[[x]][[mon]]$index, "dimensions") <- "time"
               patt <- pca[[mon]][[1]][[x]]$EOFs[,idx] * sign(corr.index[idx])
-              res[[x]]$pattern <- matrix(patt, nrow = length(data.cen$xyCoords$y), ncol = length(data.cen$xyCoords$x), byrow = FALSE) 
-              attr(res[[x]]$pattern, "dimensions") <- c("lat","lon")
-              attr(res[[x]], "ind.eof") <- idx
-              attr(res[[x]], "sign.eof") <- sign(corr.index[idx])
-              attr(res[[x]], "corr.eof") <- corr.index[idx]
-              attr(res[[x]], "match") <- match
+              res[[x]][[mon]]$pattern <- matrix(patt, nrow = length(data.cen$xyCoords$y), ncol = length(data.cen$xyCoords$x), byrow = FALSE) 
+              attr(res[[x]][[mon]]$pattern, "dimensions") <- c("lat","lon")
+              attr(res[[x]][[mon]], "ind.eof") <- idx
+              attr(res[[x]][[mon]], "sign.eof") <- sign(corr.index[idx])
+              attr(res[[x]][[mon]], "corr.eof") <- corr.index[idx]
+              attr(res[[x]][[mon]], "match") <- match
+              attr(res[[x]][[mon]], "season") <- mon
+              attr(res[[x]][[mon]], "dates_start") <- attr(pca[[mon]], "dates_start")[ind.mon]
+              attr(res[[x]][[mon]], "dates_end") <- attr(pca[[mon]], "dates_end")[ind.mon]
             } 
+            names(res[[x]]) <- paste0("Month_", season)
           }
-          attr(res, "season") <- season
-          attr(res, "dates_start") <- attr(pca[[mon]], "dates_start")[ind.mon]
-          attr(res, "dates_end") <- attr(pca[[mon]], "dates_end")[ind.mon]
           attr(res, "xCoords") <- data.cen$xyCoords$x
           attr(res, "yCoords") <- data.cen$xyCoords$y
           attr(res, "projection") <- attr(data.cen$xyCoords, "projection")
