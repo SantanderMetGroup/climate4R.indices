@@ -91,7 +91,7 @@ indicesCPC <- function(grid, base, ref,
 
         count.tele <- ind.tele[p]
         cpc.interp <- suppressMessages(interpGrid(cpc[[count.tele]], new.coordinates =  list(x=data.cen$xyCoords$x, y=data.cen$xyCoords$y), method = "bilinear"))
-        
+        browser()
         res <- vector("list", members)
         for(x in 1:members){
           for(mon in season){

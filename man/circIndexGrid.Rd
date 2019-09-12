@@ -2,11 +2,12 @@
 % Please edit documentation in R/circIndexGrid.R
 \name{circIndexGrid}
 \alias{circIndexGrid}
-\title{Calculation of circulation indices of Grids}
+\title{Calculation of circulation indices of grids}
 \usage{
 circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
   index.code, season = NULL, base = NULL, ref = NULL,
-  match = "spatial", n.pcs = 10, rot = TRUE, members = NULL)
+  match = "spatial", n.pcs = 10, rot = TRUE, centers = NULL,
+  members = NULL)
 }
 \arguments{
 \item{zg}{A grid or multimember grid object of geopotential height.}
@@ -31,12 +32,14 @@ circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
 
 \item{rot}{Logical. Should VARIMAX-Rotation be performed? Default: TRUE. This argument is only relevant for CPC indices. See details.}
 
+\item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See details.}
+
 \item{members}{Select number of members.}
 }
 \value{
 A list of circulation indices (and members, if applicable) with:
 \itemize{
-\item index: vector with the time series of the teleconnection index.
+\item index: vector with the time series of the teleconnection/circulation index.
 \item pattern: matrix with the spatial pattern of the teleconnection.
 \item dates and coordinates as list attributes.
 \item further arguments related to the CPC indices, such as the corresponding (r)EOF and (temporal or spatial, depending on \code{'match'}) correlation with the original index.
@@ -47,8 +50,8 @@ Calculate circulation indices of grids or multimember grids.
 }
 \details{
 \code{\link{circIndexShow}} displays on screen the full list of available circulation indices and their codes.
-Several indices can be calculated at the same time, as long as they depend on the same input variable(s) and spatial domain. All indices are calculated on a monthly basis. Therefore a temporal aggregation is performed if input data is daily.
-Results for the desired months in \code{season} are provided, but it is recommended to have full series as input, since many indices use a moving window for the calculation.
+Several indices can be calculated at the same time, as long as they depend on the same input variable(s) and spatial domain. CPC and ENSO indices are calculated on a monthly basis. Therefore a temporal aggregation is performed if input data is daily.
+Results for the desired months in \code{season} are provided, but it is recommended to have full series as input, since CPC and ENSO indices use a moving window for the calculation.
 
 \strong{CPC indices}
 
@@ -59,6 +62,10 @@ The argument \code{match} is used to assign each rEOF to a circulation index and
 \strong{ENSO indices}
 
 The calculation of ENSO indices is based on \url{https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni}, consisting of SST anomalies, using a moving window of different size for each index.
+
+\strong{WT indices}
+
+(to be added)
 }
 \examples{
 data(NCEP_hgt500_2001_2010)
