@@ -21,7 +21,10 @@
 #' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
 #' @param cluster.type Weather typing method. See details.
 #' @param centers Integer value indicating the number of clusters, \strong{k}, or center points. See details.
-#' @details The clustering parameters for weather typing are internally passed to \code{\link[transformeR]{clusterGrid}}. 
+#' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
+#' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
+#' @details The clustering parameters for weather typing are internally passed to \code{\link[transformeR]{clusterGrid}}.
+#' The function calculates the weather types from the season especified as a whole. 
 #' @return The WT circulation indices (and members, if applicable) with:
 #' \itemize{
 #' \item index: vector with the corresponding cluster from each point of the series.
@@ -37,20 +40,58 @@
 
 
 
-indicesWT <- function(grid, season, cluster.type, centers = NULL
+indicesWT <- function(grid, season, cluster.type, centers = NULL, base, ref
                       #rot=rot, members=members
                       ) {
   cluster.type <- match.arg(cluster.type, choices = c("kmeans", "som", "hierarchical", "lamb"))
-  # *** SUBSET WITH MONTHS FROM ARGUMENT "SEASON" ***
+  
+  # *** SUBSET FROM ARGUMENT "SEASON" ***
   data.mon <- subsetGrid(grid = grid, season = season)
-  #  *** CALCULATE CLUSTERS BY MONTH*** 
-  # depending on the index.code call to a different clustering type.
-  # argument k needs to be provided to circIndexGrid()
-  #wt <- transformeR::clusterGrid(data.mon, type = cluster.type, centers=centers)
-  wt <- clusterGrid(data.mon, type = cluster.type, centers = centers)
-  wt$index <- attr(wt, "clusters")
-  attr(wt, "clusters") <- NULL
-  wt$pattern <- wt$Data 
-  wt$Data <- NULL
+  message("Calculating weather types from seasons: ", paste0(season,", "))
+  
+  #  *** CALCULATE SEASON CENTER ANOMALIES *** 
+  data.cen <- scaleGrid(grid = data.mon, base = base, ref = ref, type = "center")
+  #data.cen<-data.mon
+  
+  #  *** CALCULATE CLUSTERS BY MONTH *** 
+  # wt <- transformeR::clusterGrid(data.mon, type = cluster.type, centers=centers)
+  clusters <- clusterGrid(grid = data.cen, type = cluster.type, centers = centers)
+  
+  #  *** PREPARE OUTPUT GRID *** 
+  wt <- vector("list", 1)
+  names(wt)<-cluster.type
+  
+  members <- getShape(clusters, dimension = "member")
+  if (is.na(members)) {
+    clusters<-redim(clusters)
+    members <- getShape(clusters, dimension = "member")
+  }
+  
+  wt[[1]] <- vector("list", members)
+  if(members>1) names(wt[[1]]) <- paste0("Member_", 1:members)
+  
+  for (x in 1:members){
+    memb <- vector("list", 1)
+    memb[[1]]$index <- attr(clusters, "clusters")
+    memb[[1]]$pattern <- clusters$Data[x, , , ]
+    attr(memb[[1]], "season") <- attr(clusters$Dates, "season")
+    attr(memb[[1]], "dates_start") <- clusters$Dates$start
+    attr(memb[[1]], "dates_end") <- clusters$Dates$end
+    attr(memb[[1]], "centers") <-  attr(clusters, "centers")
+    if (cluster.type == "kmeans") {
+      attr(memb[[1]], "withinss") <- attr(clusters, "withinss")
+      attr(memb[[1]], "betweenss") <-  attr(clusters, "betweenss")
+    } else if (cluster.type == "hierarchical") {
+      attr(memb[[1]], "height") <- attr(clusters, "height")
+      attr(memb[[1]], "cutree.at.height") <- attr(clusters, "cutree.at.height")
+      attr(memb[[1]], "diff.height.threshold") <- attr(clusters, "diff.height.threshold")
+    } 
+    wt[[1]][[x]] <- memb
+  }
+  
+  attr(wt, "xCoords") <- clusters$xyCoords$x
+  attr(wt, "yCoords") <- clusters$xyCoords$y
+  attr(wt, "projection") <- attr(clusters$xyCoords, "projection")
+  
   return(wt)
 }

@@ -201,7 +201,8 @@ circIndexGrid <- function(zg=NULL,
     }
     
     aux <- indicesWT(grid=grid, season=season, 
-                     cluster.type=index.code, centers=centers 
+                     cluster.type=index.code, centers=centers,
+                     base=base, ref=ref
                      #rot=rot, members=members
                      )
     
