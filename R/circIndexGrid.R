@@ -1,4 +1,4 @@
-#     circulationIndices.R Calculation of clirculation indices of grid data
+#     circIndexGrid.R Calculation of clirculation indices of grid data
 #
 #     Copyright (C) 2019 Santander Meteorology Group (http://www.meteo.unican.es)
 #
@@ -61,8 +61,11 @@
 #' cpc <- circIndexGrid(zg=NCEP_hgt500_2001_2010, index.code = c("NAO", "EA","PNA"), season=1)
 #' data(ERAInterim_sst_1981_2010)
 #' nino <- circIndexGrid(sst=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
-#' 
-#' 
+#' data(NCEP_slp_2001_2010)
+#' wt <- circIndexGrid(psl = NCEP_slp_2001_2010, index.code = "WT.LAMB")
+
+
+
 circIndexGrid <- function(zg=NULL,
                            z=NULL, 
                            sst=NULL,
@@ -72,9 +75,10 @@ circIndexGrid <- function(zg=NULL,
                            base=NULL, ref=NULL,
                            match="spatial", n.pcs=10, rot=TRUE,
                            centers=NULL,
+                           center.point = c(-5, 55),
                            members=NULL){
 
-
+  
   # *** CHECK INDICES NAME *** # include here any implemented index
   index.code <- toupper(index.code)
   cpc.index <- c("NAO", "EA", "WP", "EP/NP", "PNA", "EA/WR", "SCA", "TNH", "POL", "PT")
@@ -188,7 +192,6 @@ circIndexGrid <- function(zg=NULL,
   } 
   
   if(any(match(wt.index,index.code, nomatch = FALSE))){
-    
     if (index.code=="WT.KMEANS"){
       index.code <- "kmeans"
     }else if (index.code=="WT.SOM"){
@@ -196,14 +199,15 @@ circIndexGrid <- function(zg=NULL,
     }else if(index.code=="WT.HIERARCHICAL"){
       index.code <- "hierarchical"
     }else if (index.code=="WT.LAMB"){
-      stop("Clustering type under construction", call. = FALSE)
+      aux <- lambWT(grid=grid, center.point = center.point, season=season, 
+                    base=base, ref=ref)
     }
     
-    aux <- indicesWT(grid=grid, season=season, 
+    if (!index.code == "WT.LAMB"){
+      aux <- indicesWT(grid=grid, season=season, 
                      cluster.type=index.code, centers=centers,
-                     base=base, ref=ref
-                     #rot=rot, members=members
-                     )
+                     base=base, ref=ref)
+    }
     
   } 
   

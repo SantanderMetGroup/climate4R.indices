@@ -4,7 +4,7 @@
 \alias{indicesWT}
 \title{Calculation of Weather types (WT) circulation indices from grid.}
 \usage{
-indicesWT(grid, season, cluster.type, centers = NULL, base, ref)
+indicesWT(grid, season, cluster.type, centers, base, ref)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.}

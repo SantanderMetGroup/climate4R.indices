@@ -1,7 +1,7 @@
-#     indicesWT.R Calculation of the Weather types (WT) circulation indices from grid
+#     lambWT.R Calculation of the Weather types (WT) circulation indices from grid
 #
 #     Copyright (C) 2019 Santander Meteorology Group (http://www.meteo.unican.es)
-#s
+#
 #     This program is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
 #     the Free Software Foundation, either version 3 of the License, or
@@ -21,46 +21,55 @@
 #' @param grid A grid (gridded or station dataset), or multimember grid object of MSLP values.
 #' @param center.point A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
 #' See details. 
-#' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
+#' @param season Selected month(s) for the calculation. Default: 1:12.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @details According to Jones et al. 2012 (Int J Climatol), Lamb WT is only applied on North Atlantic domain. 
 #' The input grid units must be Pa, not hPa/mbar. If it is not in Pa, the units will be converted automatically.
-#' A center location point must be specified by the user. Then, the function calculates the from left to right and from first to 16st 
+#' A center location point must be specified by the user. Then, the function calculates from left to right and from first to 16st 
 #' the rest of the location point from the grid specified by Jones et al. 2012:
 #'  
-#'  
-#'           01    02
-#'     03    04    05    06
-#'     07    08    09    10
-#'     11    12    13    14
-#'           15    16
+#'   \tabular{ccccccccccccc}{
+#'     \tab  \tab  \tab    \tab  \tab  \tab 01 \tab  \tab  \tab 02 \tab  \tab  \tab    \cr
+#'     \tab  \tab  \tab 03 \tab  \tab  \tab 04 \tab  \tab  \tab 05 \tab  \tab  \tab 06 \cr
+#'     \tab  \tab  \tab 07 \tab  \tab  \tab 08 \tab  \tab  \tab 09 \tab  \tab  \tab 10 \cr
+#'     \tab  \tab  \tab 11 \tab  \tab  \tab 12 \tab  \tab  \tab 13 \tab  \tab  \tab 14 \cr
+#'     \tab  \tab  \tab    \tab  \tab  \tab 15 \tab  \tab  \tab 16 \tab  \tab  \tab    
+#' }  
 #'
-#' 
 #' where the north-south distance is 5º and the west-east distance is 10º.
 #' @return wtseries = column vector of discrete weather types defined as follows:
 #'
 #' purely anticyclonic = 1
+#' 
 #' directional anticyclonic from NE to N = 2 to 9
+#' 
 #' purely directional from NE to N = 10 to 17
+#' 
 #' purely cyclonic = 18
+#' 
 #' directional cyclonic from NE to N = 19 to 26
+#' 
 #' light indeterminate flow N = 27  
 #' @export
 #' @examples 
-#' 
+#' data(NCEP_slp_2001_2010)
+#' lamb.wt <- lambWT(grid = NCEP_slp_2001_2010)
 
 
-lambWT <- function(grid, center.point, season, base, ref
-                      #rot=rot, members=members
-                   ) {
+lambWT <- function(grid, center.point = c(-5, 55), season = getSeason(grid), base = NULL, ref = NULL) {
+
+  message("Calculating Lamb weather types from seasons: ", paste0(season,", "))
   
-#browser(1)
   #  *** PREPARE OUTPUT GRID *** 
   wt <- vector("list", 1)
   names(wt) <- "lamb"
   
-  members <- getShape(grid, dimension = "member")
+  if (!is.null(base) & !is.null(ref)){
+    data.cen <- scaleGrid(grid = data.mon, base = base, ref = ref, type = "center")
+  }
+  
+  suppressMessages(members <- getShape(grid, dimension = "member"))
   if (is.na(members)) {
     grid<-redim(grid)
     members <- getShape(grid, dimension = "member")
@@ -70,11 +79,10 @@ lambWT <- function(grid, center.point, season, base, ref
   if(members>1) names(wt[[1]]) <- paste0("Member_", 1:members)
   
   for (x in 1:members){
-    #browser(2)
     grid.member <- subsetGrid(grid, members = x)
     memb <- vector("list", 1)
     
-    ###  *** LAMB WT CALCULATIONS *** 
+    #  *** LAMB WT CALCULATIONS *** 
     #Inicialization of variables:
     n<-getShape(grid.member, dimension = "time")
     wtseries<-vector(mode = "numeric",n[[1]]) #Inicialize vector with size = lenght of "time" dimension
@@ -111,9 +119,7 @@ lambWT <- function(grid, center.point, season, base, ref
     
     ##FORTRAN code from Colin Harpham, CRU
     w <- 0.005*((X[ , 12]+X[ , 13])-(X[ , 4]+X[ , 5]))
-    #w <- 0.5*((X[ , 12]+X[ , 13])-(X[ , 4]+X[ , 5]))
     s <- (sf.const*0.0025) * (X[ , 5] + 2*X[ , 9] + X[ , 13] - X[ , 4] - 2*X[ , 8] - X[ , 12])
-    #s <- 1.74 * (0.25) * (X[ , 5] + 2*X[ , 9] + X[ , 13] - X[ , 4] - 2*X[ , 8] - X[ , 12])
     
     ind <- which(abs(w) > 0 & !is.na(w))
     dirdeg[ind]<-(atan(s[ind]/w[ind]))*180/pi
@@ -127,11 +133,9 @@ lambWT <- function(grid, center.point, season, base, ref
     
     #westerly shear vorticity
     zw <- (zw.const1*0.005) * ((X[ , 15]+X[ , 16])-(X[ , 8]+X[ , 9])) - (zw.const2*0.005) * ((X[ , 8]+X[ , 9])-(X[ , 1]+X[ , 2]))
-    #zw <- (1.07*0.5) * ((X[ , 15]+X[ , 16])-(X[ , 8]+X[ , 9])) - (0.95*0.5) * ((X[ , 8]+X[ , 9])-(X[ , 1]+X[ , 2]))
     
     #southerly shear vorticity  
     zs <- (zs.const*0.0025) * (X[ , 6]+2*X[ , 10] + X[ , 14]-X[ , 5] - 2*X[ , 9]-X[ , 13]) - (zs.const*0.0025) * (X[ , 4]+2*X[ , 8] + X[ , 12]-X[ , 3] - 2*X[ , 7]-X[ , 11])
-    # zs <- (1.52*0.25) * (X[ , 6]+2*X[ , 10] + X[ , 14]-X[ , 5] - 2*X[ , 9]-X[ , 13]) - (1.52*0.25) * (X[ , 4]+2*X[ , 8] + X[ , 12]-X[ , 3] - 2*X[ , 7]-X[ , 11])
     
     #total shear vorticity
     z <- zw + zs
@@ -180,7 +184,6 @@ lambWT <- function(grid, center.point, season, base, ref
     })
     
     lamb <- bindGrid(lamb.list, dimension = "time")
-    ###
     
     memb[[1]]$index <- wtseries.2
     memb[[1]]$pattern <- lamb$Data

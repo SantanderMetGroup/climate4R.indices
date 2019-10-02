@@ -4,7 +4,7 @@
 \alias{lambWT}
 \title{Calculation of Lamb Weather types (WT).}
 \usage{
-lambWT(grid, center.point, season, base, ref)
+lambWT(grid, center.point, season = 1:12, base = NULL, ref = NULL)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of MSLP values.}
@@ -12,7 +12,7 @@ lambWT(grid, center.point, season, base, ref)
 \item{center.point}{A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
 See details.}
 
-\item{season}{Selected month(s) for the calculation. Default: NULL (i.e. as input grid).}
+\item{season}{Selected month(s) for the calculation. Default: 1:12.}
 
 \item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 
@@ -22,10 +22,15 @@ See details.}
 wtseries = column vector of discrete weather types defined as follows:
 
 purely anticyclonic = 1
+
 directional anticyclonic from NE to N = 2 to 9
+
 purely directional from NE to N = 10 to 17
+
 purely cyclonic = 18
+
 directional cyclonic from NE to N = 19 to 26
+
 light indeterminate flow N = 27
 }
 \description{
@@ -35,19 +40,20 @@ both Int J Climatol
 \details{
 According to Jones et al. 2012 (Int J Climatol), Lamb WT is only applied on North Atlantic domain. 
 The input grid units must be Pa, not hPa/mbar. If it is not in Pa, the units will be converted automatically.
-A center location point must be specified by the user. Then, the function calculates the from left to right and from first to 16st 
+A center location point must be specified by the user. Then, the function calculates from left to right and from first to 16st 
 the rest of the location point from the grid specified by Jones et al. 2012:
  
- 
-          01    02
-    03    04    05    06
-    07    08    09    10
-    11    12    13    14
-          15    16
-
+  \tabular{ccccccccccccc}{
+    \tab  \tab  \tab    \tab  \tab  \tab 01 \tab  \tab  \tab 02 \tab  \tab  \tab    \cr
+    \tab  \tab  \tab 03 \tab  \tab  \tab 04 \tab  \tab  \tab 05 \tab  \tab  \tab 06 \cr
+    \tab  \tab  \tab 07 \tab  \tab  \tab 08 \tab  \tab  \tab 09 \tab  \tab  \tab 10 \cr
+    \tab  \tab  \tab 11 \tab  \tab  \tab 12 \tab  \tab  \tab 13 \tab  \tab  \tab 14 \cr
+    \tab  \tab  \tab    \tab  \tab  \tab 15 \tab  \tab  \tab 16 \tab  \tab  \tab    
+}  
 
 where the north-south distance is 5º and the west-east distance is 10º.
 }
 \examples{
-
+data(NCEP_slp_2001_2010)
+lamb.wt <- lambWT(grid = NCEP_slp_2001_2010, center.point = c(-5, 55))
 }
