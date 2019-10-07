@@ -7,7 +7,7 @@
 circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
   index.code, season = NULL, base = NULL, ref = NULL,
   match = "spatial", n.pcs = 10, rot = TRUE, centers = NULL,
-  members = NULL)
+  center.point = c(-5, 55), members = NULL)
 }
 \arguments{
 \item{zg}{A grid or multimember grid object of geopotential height.}

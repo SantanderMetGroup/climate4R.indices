@@ -4,7 +4,7 @@
 \alias{indicesWT}
 \title{Calculation of Weather types (WT) circulation indices from grid.}
 \usage{
-indicesWT(grid, season, cluster.type, centers = NULL)
+indicesWT(grid, season, cluster.type, centers, base, ref)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.}
@@ -14,6 +14,10 @@ indicesWT(grid, season, cluster.type, centers = NULL)
 \item{cluster.type}{Weather typing method. See details.}
 
 \item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See details.}
+
+\item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
+
+\item{ref}{Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 }
 \value{
 The WT circulation indices (and members, if applicable) with:
@@ -29,6 +33,7 @@ Calculate circulation indices of grids or multimember grids.
 }
 \details{
 The clustering parameters for weather typing are internally passed to \code{\link[transformeR]{clusterGrid}}.
+The function calculates the weather types from the season especified as a whole.
 }
 \examples{
 data(NCEP_hgt500_2001_2010)
