@@ -21,7 +21,6 @@
 #' @param grid A grid (gridded or station dataset), or multimember grid object of MSLP values.
 #' @param center.point A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
 #' See details. 
-#' @param season Selected month(s) for the calculation. Default: 1:12.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @details According to Jones et al. 2012 (Int J Climatol), Lamb WT is only applied on North Atlantic domain. 
@@ -38,7 +37,9 @@
 #' }  
 #'
 #' where the north-south distance is 5º and the west-east distance is 10º.
-#' @return wtseries = column vector of discrete weather types defined as follows:
+#' @return The Lamb WT circulation index (and members, if applicable) with:
+#' \itemize{
+#' \item index: vector with the corresponding weather type from each point of the series, that is defined as follows:
 #'
 #' purely anticyclonic = 1
 #' 
@@ -50,23 +51,25 @@
 #' 
 #' directional cyclonic from NE to N = 19 to 26
 #' 
-#' light indeterminate flow N = 27  
+#' light indeterminate flow N = 27  .
+#' \item pattern: Array with the spatial pattern of the 27 weather types obtained.
+#' \item dates and coordinates.
+#' \item further arguments related to the Lamb WT index.
+#' }
 #' @export
 #' @examples 
 #' data(NCEP_slp_2001_2010)
 #' lamb.wt <- lambWT(grid = NCEP_slp_2001_2010)
 
 
-lambWT <- function(grid, center.point = c(-5, 55), season = getSeason(grid), base = NULL, ref = NULL) {
+lambWT <- function(grid, center.point = c(-5, 55), base = NULL, ref = NULL) {
 
-  message("Calculating Lamb weather types from seasons: ", paste0(season,", "))
-  
   #  *** PREPARE OUTPUT GRID *** 
   wt <- vector("list", 1)
   names(wt) <- "lamb"
   
   if (!is.null(base) & !is.null(ref)){
-    data.cen <- scaleGrid(grid = data.mon, base = base, ref = ref, type = "center")
+    grid <- scaleGrid(grid = grid, base = base, ref = ref, type = "center")
   }
   
   suppressMessages(members <- getShape(grid, dimension = "member"))
@@ -75,7 +78,7 @@ lambWT <- function(grid, center.point = c(-5, 55), season = getSeason(grid), bas
     members <- getShape(grid, dimension = "member")
   }
   
-  wt[[1]] <- vector("list", members)
+  wt[[1]] <- c(wt[[1]], vector("list", members)) 
   if(members>1) names(wt[[1]]) <- paste0("Member_", 1:members)
   
   for (x in 1:members){
@@ -187,13 +190,14 @@ lambWT <- function(grid, center.point = c(-5, 55), season = getSeason(grid), bas
     
     memb[[1]]$index <- wtseries.2
     memb[[1]]$pattern <- lamb$Data
-    attr(memb[[1]], "season") <- season
+    attr(memb[[1]], "season") <- getSeason(grid)
     attr(memb[[1]], "dates_start") <- grid.member$Dates$start
     attr(memb[[1]], "dates_end") <- grid.member$Dates$end
     attr(memb[[1]], "centers") <- 27
     wt[[1]][[x]] <- memb
   }
   
+  wt[[1]]$Variable <- grid$Variable
   attr(wt, "xCoords") <- grid$xyCoords$x
   attr(wt, "yCoords") <- grid$xyCoords$y
   attr(wt, "projection") <- attr(grid$xyCoords, "projection")

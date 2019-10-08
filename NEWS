@@ -9,3 +9,7 @@
 ## v0.0.2 (12 July 2019)
  * Include circulation indices
  * Include master of circulation indices and exemplary data
+
+## v0.1.0 (08 Oct 2019)
+ * Include weather types circulation indices
+ * Include new exemplary data: NCEP_slp_2001_2010
