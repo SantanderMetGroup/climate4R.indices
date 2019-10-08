@@ -17,9 +17,8 @@
 
 #' @title Calculation of Weather types (WT) circulation indices from grid.
 #' @description Calculate circulation indices of grids or multimember grids. 
-#' @param grid A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.
-#' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
-#' @param cluster.type Weather typing method. See details.
+#' @param grid A grid (gridded or station dataset), or multimember grid object.
+#' @param cluster.type Weather type clustering method. See details.
 #' @param centers Integer value indicating the number of clusters, \strong{k}, or center points. See details.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
@@ -39,18 +38,15 @@
 
 
 
-indicesWT <- function(grid, season = getSeason(grid), cluster.type, centers = NULL, base = NULL, ref = NULL) {
+indicesWT <- function(grid, cluster.type, centers = NULL, base = NULL, ref = NULL) {
   
   cluster.type <- match.arg(cluster.type, choices = c("kmeans", "som", "hierarchical"))
-  # *** SUBSET FROM ARGUMENT "SEASON" ***
-  data.mon <- subsetGrid(grid = grid, season = season)
-  message("Calculating weather types from seasons: ", paste0(season,", "))
   
   #  *** CALCULATE SEASON CENTER ANOMALIES *** 
   if (is.null(base) & is.null(ref)){
-    data.cen<-data.mon
+    data.cen<-grid
   }else {
-    data.cen <- scaleGrid(grid = data.mon, base = base, ref = ref, type = "center")
+    data.cen <- scaleGrid(grid = grid, base = base, ref = ref, type = "center")
   }
  
   #  *** CALCULATE CLUSTERS BY MONTH *** 
@@ -88,6 +84,7 @@ indicesWT <- function(grid, season = getSeason(grid), cluster.type, centers = NU
     wt[[1]][[x]] <- memb
   }
   
+  wt[[1]]$Variable <- grid$Variable
   attr(wt, "xCoords") <- clusters$xyCoords$x
   attr(wt, "yCoords") <- clusters$xyCoords$y
   attr(wt, "projection") <- attr(clusters$xyCoords, "projection")

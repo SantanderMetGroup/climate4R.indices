@@ -192,6 +192,9 @@ circIndexGrid <- function(zg=NULL,
   } 
   
   if(any(match(wt.index,index.code, nomatch = FALSE))){
+    
+    message("Calculating weather types from seasons: ", paste0(getSeason(grid),", "))
+    
     if (index.code=="WT.KMEANS"){
       index.code <- "kmeans"
     }else if (index.code=="WT.SOM"){
@@ -199,13 +202,11 @@ circIndexGrid <- function(zg=NULL,
     }else if(index.code=="WT.HIERARCHICAL"){
       index.code <- "hierarchical"
     }else if (index.code=="WT.LAMB"){
-      aux <- lambWT(grid=grid, center.point = center.point, season=season, 
-                    base=base, ref=ref)
+      aux <- lambWT(grid=grid, center.point = center.point, base=base, ref=ref)
     }
     
     if (!index.code == "WT.LAMB"){
-      aux <- indicesWT(grid=grid, season=season, 
-                     cluster.type=index.code, centers=centers,
+      aux <- indicesWT(grid=grid, cluster.type=index.code, centers=centers,
                      base=base, ref=ref)
     }
     
