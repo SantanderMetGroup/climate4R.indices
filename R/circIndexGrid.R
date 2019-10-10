@@ -24,6 +24,7 @@
 #' @inheritParams indicesCPC
 #' @inheritParams indicesENSO
 #' @inheritParams indicesWT
+#' @inheritParams lambWT
 #' 
 #' @return A list of circulation indices (and members, if applicable) with:
 #' \itemize{
@@ -56,13 +57,14 @@
 #' @importFrom utils data
 #' 
 #' @author A. Casanueva
-#' @examples 
+#' @examples \dontrun{
 #' data(NCEP_hgt500_2001_2010)
 #' cpc <- circIndexGrid(zg=NCEP_hgt500_2001_2010, index.code = c("NAO", "EA","PNA"), season=1)
 #' data(ERAInterim_sst_1981_2010)
 #' nino <- circIndexGrid(sst=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
 #' data(NCEP_slp_2001_2010)
 #' wt <- circIndexGrid(psl = NCEP_slp_2001_2010, index.code = "WT.LAMB")
+#' }
 
 
 

@@ -34,6 +34,9 @@ circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
 
 \item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See details.}
 
+\item{center.point}{A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
+See details.}
+
 \item{members}{Select number of members.}
 }
 \value{
@@ -68,12 +71,14 @@ The calculation of ENSO indices is based on \url{https://climatedataguide.ucar.e
 (to be added)
 }
 \examples{
+\dontrun{
 data(NCEP_hgt500_2001_2010)
 cpc <- circIndexGrid(zg=NCEP_hgt500_2001_2010, index.code = c("NAO", "EA","PNA"), season=1)
 data(ERAInterim_sst_1981_2010)
 nino <- circIndexGrid(sst=ERAInterim_sst_1981_2010, index.code = "NINO3.4")
-
-
+data(NCEP_slp_2001_2010)
+wt <- circIndexGrid(psl = NCEP_slp_2001_2010, index.code = "WT.LAMB")
+}
 }
 \author{
 A. Casanueva

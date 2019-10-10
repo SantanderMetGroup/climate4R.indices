@@ -8,9 +8,6 @@
 \source{
 \url{https://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.html} and \url{http://www.meteo.unican.es/udg-tap}.
 }
-\usage{
-data(NCEP_hgt500_2001_2010)
-}
 \description{
 This exemplary grid contains monthly mean data of geopotential height at 500hPa from NCEP renalysis, for the period 2001-2010.
 This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
@@ -23,10 +20,12 @@ see \code{\link[loadeR]{loginUDG}}) by means of function \code{\link[loadeR]{loa
 \code{NCEP_hgt500_2001_2010 <- loadGridData(dataset = "http://meteo.unican.es/tds5/dodsC/ncepReanalysis1/ncepReanalysis1_4xDaily.ncml", var = "hgt@500", latLim = c(20,90), lonLim=c(-180,180), years = 2001:2010, time="DD", aggr.d="mean", aggr.m="mean")}\cr
 }
 \examples{
+\dontrun{
 data("NCEP_hgt500_2001_2010")
 # Plot in longlat projection
 visualizeR::spatialPlot(transformeR::climatology(NCEP_hgt500_2001_2010), 
 backdrop.theme = "coastline")
+}
 }
 \seealso{
 \code{\link[loadeR]{loadGridData}}
