@@ -4,7 +4,7 @@
 \alias{lambWT}
 \title{Calculation of Lamb Weather types (WT).}
 \usage{
-lambWT(grid, center.point, season = 1:12, base = NULL, ref = NULL)
+lambWT(grid, center.point = c(-5, 55), base = NULL, ref = NULL)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of MSLP values.}
@@ -12,14 +12,14 @@ lambWT(grid, center.point, season = 1:12, base = NULL, ref = NULL)
 \item{center.point}{A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
 See details.}
 
-\item{season}{Selected month(s) for the calculation. Default: 1:12.}
-
 \item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 
 \item{ref}{Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 }
 \value{
-wtseries = column vector of discrete weather types defined as follows:
+The Lamb WT circulation index (and members, if applicable) with:
+\itemize{
+\item index: vector with the corresponding weather type from each point of the series, that is defined as follows:
 
 purely anticyclonic = 1
 
@@ -31,7 +31,11 @@ purely cyclonic = 18
 
 directional cyclonic from NE to N = 19 to 26
 
-light indeterminate flow N = 27
+light indeterminate flow N = 27  .
+\item pattern: Array with the spatial pattern of the 27 weather types obtained.
+\item dates and coordinates.
+\item further arguments related to the Lamb WT index.
+}
 }
 \description{
 Calculate automated Lamb WT as defined in Trigo daCamara 2000 and Jones et al. 2012, 
@@ -54,6 +58,8 @@ the rest of the location point from the grid specified by Jones et al. 2012:
 where the north-south distance is 5º and the west-east distance is 10º.
 }
 \examples{
+\dontrun{
 data(NCEP_slp_2001_2010)
-lamb.wt <- lambWT(grid = NCEP_slp_2001_2010, center.point = c(-5, 55))
+lamb.wt <- lambWT(grid = NCEP_slp_2001_2010)
+}
 }
