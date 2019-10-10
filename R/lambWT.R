@@ -56,10 +56,12 @@
 #' \item dates and coordinates.
 #' \item further arguments related to the Lamb WT index.
 #' }
+#' @importFrom convertR udConvertGrid
 #' @export
-#' @examples 
+#' @examples \dontrun{
 #' data(NCEP_slp_2001_2010)
 #' lamb.wt <- lambWT(grid = NCEP_slp_2001_2010)
+#' }
 
 
 lambWT <- function(grid, center.point = c(-5, 55), base = NULL, ref = NULL) {

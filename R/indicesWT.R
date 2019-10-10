@@ -32,9 +32,10 @@
 #' \item further arguments related to the WT indices, such as the corresponding cluster type, number of clusters, etc.
 #' }
 #' @export
-#' @examples 
+#' @examples \dontrun{
 #' data(NCEP_slp_2001_2010)
 #' wt <- indicesWT(grid=NCEP_slp_2001_2010, cluster.type="kmeans", centers = 3)
+#' }
 
 
 

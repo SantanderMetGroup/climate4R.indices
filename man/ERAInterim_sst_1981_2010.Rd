@@ -8,9 +8,6 @@
 \source{
 \url{https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era-interim} and \url{http://www.meteo.unican.es/udg-tap}.
 }
-\usage{
-data(ERAInterim_sst_1981_2010)
-}
 \description{
 This exemplary grid contains monthly mean data of sea surface temperature from ERA-Interim renalysis, for the period 1981-2010.
 This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
@@ -23,10 +20,12 @@ see \code{\link[loadeR]{loginUDG}}) by means of function \code{\link[loadeR]{loa
 \code{ERAInterim_sst_1981_2010 <- loadGridData(dataset = "http://meteo.unican.es/tds5/dodsC/interim/daily/interim20_daily.ncml", var = "sst", latLim = c(-6,6), lonLim=c(-170,-120), years = 1981:2010, time="DD", aggr.d="mean", aggr.m="mean")}\cr
 }
 \examples{
+\dontrun{
 data("ERAInterim_sst_1981_2010")
 # Plot 
 visualizeR::spatialPlot(transformeR::climatology(ERAInterim_sst_1981_2010), 
 backdrop.theme = "coastline")
+}
 }
 \seealso{
 \code{\link[loadeR]{loadGridData}}
