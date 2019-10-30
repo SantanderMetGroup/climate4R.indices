@@ -4,8 +4,8 @@
 \alias{indicesWT}
 \title{Calculation of Weather types (WT) circulation indices from grid.}
 \usage{
-indicesWT(grid, cluster.type, centers = NULL, base = NULL,
-  ref = NULL)
+indicesWT(grid, cluster.type, centers = NULL, center.point = c(-5, 55),
+  base = NULL, ref = NULL)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object.}
@@ -13,6 +13,9 @@ indicesWT(grid, cluster.type, centers = NULL, base = NULL,
 \item{cluster.type}{Weather type clustering method. See details.}
 
 \item{centers}{Integer value indicating the number of clusters, \strong{k}, or center points. See details.}
+
+\item{center.point}{A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
+See details.}
 
 \item{base}{Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.}
 

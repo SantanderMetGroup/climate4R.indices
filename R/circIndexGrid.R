@@ -24,7 +24,6 @@
 #' @inheritParams indicesCPC
 #' @inheritParams indicesENSO
 #' @inheritParams indicesWT
-#' @inheritParams lambWT
 #' 
 #' @return A list of circulation indices (and members, if applicable) with:
 #' \itemize{
@@ -204,13 +203,11 @@ circIndexGrid <- function(zg=NULL,
     }else if(index.code=="WT.HIERARCHICAL"){
       index.code <- "hierarchical"
     }else if (index.code=="WT.LAMB"){
-      aux <- lambWT(grid=grid, center.point = center.point, base=base, ref=ref)
+      index.code <- "lamb"
     }
     
-    if (!index.code == "WT.LAMB"){
-      aux <- indicesWT(grid=grid, cluster.type=index.code, centers=centers,
-                     base=base, ref=ref)
-    }
+    aux <- indicesWT(grid=grid, cluster.type=index.code, centers=centers, 
+                     center.point = center.point, base=base, ref=ref)
     
   } 
   

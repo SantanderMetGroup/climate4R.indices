@@ -22,6 +22,7 @@
 #' @param centers Integer value indicating the number of clusters, \strong{k}, or center points. See details.
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
+#' @inheritParams transformeR::lambWT
 #' @details The clustering parameters for weather typing are internally passed to \code{\link[transformeR]{clusterGrid}}.
 #' The function calculates the weather types from the season especified as a whole. 
 #' @return The WT circulation indices (and members, if applicable) with:
@@ -39,9 +40,9 @@
 
 
 
-indicesWT <- function(grid, cluster.type, centers = NULL, base = NULL, ref = NULL) {
+indicesWT <- function(grid, cluster.type, centers = NULL, center.point = c(-5, 55), base = NULL, ref = NULL) {
   
-  cluster.type <- match.arg(cluster.type, choices = c("kmeans", "som", "hierarchical"))
+  cluster.type <- match.arg(cluster.type, choices = c("kmeans", "som", "hierarchical", "lamb"))
   
   #  *** CALCULATE SEASON CENTER ANOMALIES *** 
   if (is.null(base) & is.null(ref)){
@@ -51,7 +52,7 @@ indicesWT <- function(grid, cluster.type, centers = NULL, base = NULL, ref = NUL
   }
  
   #  *** CALCULATE CLUSTERS BY MONTH *** 
-  clusters <- clusterGrid(grid = data.cen, type = cluster.type, centers = centers)
+  clusters <- clusterGrid(grid = data.cen, type = cluster.type, centers = centers, center.point = center.point)
   
   #  *** PREPARE OUTPUT GRID *** 
   wt <- vector("list", 1)
@@ -68,18 +69,18 @@ indicesWT <- function(grid, cluster.type, centers = NULL, base = NULL, ref = NUL
   
   for (x in 1:members){
     memb <- vector("list", 1)
-    memb[[1]]$index <- attr(clusters, "cluster")[x, ]
-    memb[[1]]$pattern <- clusters$Data[x, , , ]
+    memb[[1]]$index <- attr(clusters, "index")[1, x, ]
+    memb[[1]]$pattern <- attr(clusters, "patterns")[x, , , ]
     attr(memb[[1]], "season") <- attr(clusters$Dates, "season")
     attr(memb[[1]], "dates_start") <- clusters$Dates$start
     attr(memb[[1]], "dates_end") <- clusters$Dates$end
     attr(memb[[1]], "centers") <-  attr(clusters, "centers")
     if (cluster.type == "kmeans") {
-      attr(memb[[1]], "withinss") <- attr(clusters, "withinss")[x, ]
-      attr(memb[[1]], "betweenss") <-  attr(clusters, "betweenss")[x]
+      attr(memb[[1]], "withinss") <- attr(clusters, "withinss")[1, x, ]
+      attr(memb[[1]], "betweenss") <-  attr(clusters, "betweenss")[1, x]
     } else if (cluster.type == "hierarchical") {
-      attr(memb[[1]], "height") <- attr(clusters, "height")[x, ]
-      attr(memb[[1]], "cutree.at.height") <- attr(clusters, "cutree.at.height")[x]
+      attr(memb[[1]], "height") <- attr(clusters, "height")[1, x, ]
+      attr(memb[[1]], "cutree.at.height") <- attr(clusters, "cutree.at.height")[1, x]
       attr(memb[[1]], "diff.height.threshold") <- attr(clusters, "diff.height.threshold")
     } 
     wt[[1]][[x]] <- memb
