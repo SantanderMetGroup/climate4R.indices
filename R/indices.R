@@ -53,8 +53,8 @@ gdd.th <- function(tm, th = 5) {
 hdd.th <- function(tn, tx, tm, th = 15.5) {
   arr <- tm
   arr[which(th >= tx)] <- th - tm[which(th >= tx)]
-  arr[which(th < tx & tm <= th)] <- ((th - tn)/2) - ((tx - th)/4)
-  arr[which(th < tm & tn <= th)] <- (th - tn)/4
+  arr[which(th < tx & tm <= th)] <- ((th - tn[which(th < tx & tm <= th)])/2) - ((tx[which(th < tx & tm <= th)] - th)/4)
+  arr[which(th < tm & tn <= th)] <- (th - tn[which(th < tm & tn <= th)])/4
   arr[which(th <= tn)] <- 0
   apply(arr, MARGIN = 2:3, FUN = "sum", na.rm = TRUE)
 }
@@ -78,9 +78,9 @@ cdd.th <- function(tn, tx, tm, th = 22) {
   arr <- tm
   th <- 22
   arr[which(th >= tx)] <- 0
-  arr[which(th < tx & tm <= th)] <- (tx - th)/4
-  arr[which(th < tm & tn <= th)] <- ((tx - th)/2) - ((th - tn)/4)
-  arr[which(th <= tn)] <- tm - th
+  arr[which(th < tx & tm <= th)] <- (tx[which(th < tx & tm <= th)] - th)/4
+  arr[which(th < tm & tn <= th)] <- ((tx[which(th < tm & tn <= th)] - th)/2) - ((th - tn[which(th < tm & tn <= th)])/4)
+  arr[which(th <= tn)] <- tm[which(th <= tn)] - th
   apply(arr, MARGIN = 2:3, FUN = "sum", na.rm = TRUE)
 }
 
