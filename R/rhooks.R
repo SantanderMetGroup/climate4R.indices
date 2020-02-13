@@ -27,6 +27,7 @@
             packageStartupMessage(ver.mess)
         }
     }
-    packageStartupMessage("Use 'indexShow()' for an overview of the available ETCCDI indices")
+    packageStartupMessage("Use 'indexShow()' for an overview of the available climate indices and circIndexShow() for the circulation indices.")
+    packageStartupMessage("NOTE: use package climate4R.climdex to calculate ETCCDI indices.")
 }
 # End

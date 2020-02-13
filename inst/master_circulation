@@ -1,0 +1,14 @@
+code;longname;fun;z;zg;sst;psl;reference
+NAO;North_Atlantic_Oscillation;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+EA;East Atlantic_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+WP;West_Pacific_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+EP/NP;EastPacific/North_Pacific_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+PNA;Pacific/North_American_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+EA/WR;East_Atlantic/West_Russia_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+SCA;Scandinavia_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+TNH;Tropical/Northern_Hemisphere_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+POL;Polar/Eurasia_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+PT;Pacific_Transition_Pattern;indicesCPC;0;1;0;0;https://www.cpc.ncep.noaa.gov/data/teledoc/telecontents.shtml
+NINO3.4;El_Nino_3.4;indicesENSO;0;0;1;0;https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+ONI;Oceanic_Nino_Index;indicesENSO;0;0;1;0;https://climatedataguide.ucar.edu/climate-data/nino-sst-indices-nino-12-3-34-4-oni-and-tni
+

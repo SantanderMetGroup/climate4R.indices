@@ -15,12 +15,20 @@ The recommended procedure for installing the package is using the devtools packa
 devtools::install_github(c("SantanderMetGroup/transformeR", "SantanderMetGroup/climate4R.indices"))
 ```
 
-A list of all available indices and the atomic functions calculating them is printed on screen with:
+A list of all available impact indices and the atomic functions calculating them is printed on screen with:
 
 ```R
 library(climate4R.indices)
 indexShow()
 ?indexGrid   # see the examples 
+```
+
+A set of circulation indices is also available, developed in the framework of the [INDECIS project](http://www.indecis.eu/):
+
+```R
+library(climate4R.indices)
+circIndexShow()
+?circIndexGrid   # see the examples 
 ```
 
 Reference and further information: 

@@ -235,9 +235,6 @@ indexGrid <- function(tn = NULL,
 }
 
 
-
-
-
 #' @title List all available Indices
 #' @description Print a table with a summary of the available indices
 #' @return Print a table on the screen with the following columns:
@@ -268,6 +265,3 @@ read.master <- function() {
                                                                       stringsAsFactors = FALSE,
                                                                       na.strings = "")
 }
-
-
-
