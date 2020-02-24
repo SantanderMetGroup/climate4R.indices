@@ -10,6 +10,7 @@
  * Include circulation indices
  * Include master of circulation indices and exemplary data
 
-## v0.1.0 (08 Oct 2019)
+## v0.1.0 (24 Feb 2020)
  * Include weather types circulation indices
  * Include new exemplary data: NCEP_slp_2001_2010
+ * Bug fix in HDD and CDD indices calculation
