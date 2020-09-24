@@ -4,8 +4,17 @@
 \alias{indicesCPC}
 \title{Calculation of CPC circulation indices from grid.}
 \usage{
-indicesCPC(grid, base, ref, season, index.code, match = match,
-  n.pcs = n.pcs, rot = rot, members = members)
+indicesCPC(
+  grid,
+  base,
+  ref,
+  season,
+  index.code,
+  match = match,
+  n.pcs = n.pcs,
+  rot = rot,
+  members = members
+)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of geopotential height or geopotential.}

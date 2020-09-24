@@ -4,9 +4,20 @@
 \alias{agroindexFAO}
 \title{FAO Agronomic indices}
 \usage{
-agroindexFAO(lat, dates, index.code, pr = NULL, tx = NULL, tn = NULL,
-  pnan = 25, shc = 100, rndy = 2.5, rnlg = 50, txh = 30,
-  tnh = 18)
+agroindexFAO(
+  lat,
+  dates,
+  index.code,
+  pr = NULL,
+  tx = NULL,
+  tn = NULL,
+  pnan = 25,
+  shc = 100,
+  rndy = 2.5,
+  rnlg = 50,
+  txh = 30,
+  tnh = 18
+)
 }
 \arguments{
 \item{lat}{Latitude (Integer)}

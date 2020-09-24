@@ -4,9 +4,19 @@
 \alias{indexGrid}
 \title{Climate Indices in Climate4R}
 \usage{
-indexGrid(tn = NULL, tx = NULL, tm = NULL, pr = NULL,
-  baseline = NULL, index.code, time.resolution = "year", ...,
-  parallel = FALSE, max.ncores = 16, ncores = NULL)
+indexGrid(
+  tn = NULL,
+  tx = NULL,
+  tm = NULL,
+  pr = NULL,
+  baseline = NULL,
+  index.code,
+  time.resolution = "year",
+  ...,
+  parallel = FALSE,
+  max.ncores = 16,
+  ncores = NULL
+)
 }
 \arguments{
 \item{tn}{A climate4R dataset of daily minimum temperature (degrees C)}
@@ -58,7 +68,9 @@ Parallel computing is currently not available for Windows machines.
 }
 
 \examples{
-require(transformeR)
+require(climate4R.datasets)
+data("EOBS_Iberia_tas")
+data("CFS_Iberia_tas")
 fd <- indexGrid(tn = EOBS_Iberia_tas,
                 time.resolution = "year",
                 index.code = "FD")

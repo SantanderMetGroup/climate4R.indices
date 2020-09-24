@@ -4,10 +4,22 @@
 \alias{circIndexGrid}
 \title{Calculation of circulation indices of grids}
 \usage{
-circIndexGrid(zg = NULL, z = NULL, sst = NULL, psl = NULL,
-  index.code, season = NULL, base = NULL, ref = NULL,
-  match = "spatial", n.pcs = 10, rot = TRUE, centers = NULL,
-  center.point = c(-5, 55), members = NULL)
+circIndexGrid(
+  zg = NULL,
+  z = NULL,
+  sst = NULL,
+  psl = NULL,
+  index.code,
+  season = NULL,
+  base = NULL,
+  ref = NULL,
+  match = "spatial",
+  n.pcs = 10,
+  rot = TRUE,
+  centers = NULL,
+  center.point = c(-5, 55),
+  members = NULL
+)
 }
 \arguments{
 \item{zg}{A grid or multimember grid object of geopotential height.}

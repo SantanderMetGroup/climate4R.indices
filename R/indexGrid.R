@@ -38,7 +38,9 @@
 #' @author M. Iturbide
 #' @export
 #' @examples 
-#' require(transformeR)
+#' require(climate4R.datasets)
+#' data("EOBS_Iberia_tas")
+#' data("CFS_Iberia_tas")
 #' fd <- indexGrid(tn = EOBS_Iberia_tas,
 #'                 time.resolution = "year",
 #'                 index.code = "FD")
@@ -72,8 +74,9 @@ indexGrid <- function(tn = NULL,
                       ncores = NULL) {
   index.arg.list <- list(...)
   choices <- c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
-                       "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
-                       "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn")
+               "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
+               "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
+               "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
@@ -143,33 +146,34 @@ indexGrid <- function(tn = NULL,
   # Member loop
   message("[", Sys.time(), "] Calculating ", index.code, " ...")
   out.m <- apply_fun(1:n.mem, function(m){
-    if (sum(b) == 1 & is.null(baseline)) {
-      # Indices from a single variable
-      aggr.arg <- switch(time.resolution,
-                         "month" = "aggr.m",
-                         "year" = "aggr.y",
-                         "climatology" = "clim.fun")
-      fun.call <- switch(time.resolution,
-                         "month" = "aggregateGrid",
-                         "year" = "aggregateGrid",
-                         "climatology" = "climatology")
-      input.arg.list <- list()
-      input.arg.list[["grid"]] <- subsetGrid(grid.list[[1]], members = m)
-      input.arg.list[[aggr.arg]] <- c(list("FUN" = metadata$indexfun), index.arg.list)
-      suppressMessages(do.call(fun.call, input.arg.list))
-      
-      
-    } else {
-      # Indices from multiple variables or for baseline methods
-      grid.list.aux <- lapply(grid.list, function(x) subsetGrid(x, members = m))
-      months <- switch(time.resolution,
-                       "month" = as.list(getSeason(grid.list.aux[[1]])),
-                       "year" = list(getSeason(grid.list.aux[[1]])),
-                       "climatology" = list(getSeason(grid.list.aux[[1]])))
-      years <- switch(time.resolution,
-                      "month" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
-                      "year" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
-                      "climatology" = list(unique(getYearsAsINDEX(grid.list.aux[[1]]))))
+     if (sum(b) == 1 & is.null(baseline) & metadata$indexfun != "agroindexFAO" & metadata$indexfun != "agroindexFAO_tier1") {
+        # Indices from a single variable
+        aggr.arg <- switch(time.resolution,
+                           "month" = "aggr.m",
+                           "year" = "aggr.y",
+                           "climatology" = "clim.fun")
+        fun.call <- switch(time.resolution,
+                           "month" = "aggregateGrid",
+                           "year" = "aggregateGrid",
+                           "climatology" = "climatology")
+        input.arg.list <- list()
+        input.arg.list[["grid"]] <- subsetGrid(grid.list[[1]], members = m)
+        input.arg.list[[aggr.arg]] <- c(list("FUN" = metadata$indexfun), index.arg.list)
+        suppressMessages(do.call(fun.call, input.arg.list))
+        
+        
+      } else {
+        # Indices from multiple variables or for baseline methods
+        grid.list.aux <- lapply(grid.list, function(x) subsetGrid(x, members = m))
+        months <- switch(time.resolution,
+                         "month" = as.list(getSeason(grid.list.aux[[1]])),
+                         "year" = list(getSeason(grid.list.aux[[1]])),
+                         "climatology" = list(getSeason(grid.list.aux[[1]])))
+        years <- switch(time.resolution,
+                        "month" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
+                        "year" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
+                        "climatology" = list(unique(getYearsAsINDEX(grid.list.aux[[1]]))))
+      }
       if (!is.null(baseline)) {
         baseline.sub <- suppressWarnings(subsetGrid(baseline, members = m))
         if (is.null(index.arg.list[["percent"]]) & is.null(index.arg.list[["value"]])) stop("Baseline provided but percent or value not specified.")
@@ -190,7 +194,7 @@ indexGrid <- function(tn = NULL,
         }
       }
       # EXCEPTION for FAO INDICES (require lat, dates, and NO temporal subsetting)
-      if (metadata$indexfun == "agroindexFAO") {
+      if (metadata$indexfun %in% c("agroindexFAO", "agroindexFAO_tier1")) {
         if (time.resolution != "year") message(index.code, " is calculated yaear by year by definition. argument time.resolution ignored.")
         out.aux <- suppressMessages(aggregateGrid(grid.list.aux[[1]], aggr.y = list(FUN = "mean", na.rm = TRUE)))
         input.arg.list <- lapply(grid.list.aux, function(d) d[["Data"]])
@@ -198,16 +202,16 @@ indexGrid <- function(tn = NULL,
         datess <- cbind(as.numeric(format(datess, "%Y")), as.numeric(format(datess, "%m")), as.numeric(format(datess, "%d")))
         lats <- grid.list.aux[[1]][["xyCoords"]][["y"]]
         latloop <- lapply(1:length(lats), function(l) {
-                              lonloop <- lapply(1:getShape(grid.list.aux[[1]])["lon"], function(lo) {
-                                     do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), "lat" = list(lats[l]), "dates" = list(datess), "index.code" = list(index.code)))
-                              })
-                              do.call("abind", list(lonloop, along = 0))
-                  })
+          lonloop <- lapply(1:getShape(grid.list.aux[[1]])["lon"], function(lo) {
+            do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), "lat" = list(lats[l]), "dates" = list(datess), "index.code" = list(index.code)))
+          })
+          do.call("abind", list(lonloop, along = 0))
+        })
         out.aux[["Data"]] <- unname(aperm(do.call("abind", list(latloop, along = 0)), c(3, 1, 2)))
         attr(out.aux[["Data"]], "dimensions") <- c("time", "lat", "lon")
         out.aux
       } else {
-       yg <- lapply(years, function(yi){
+        yg <- lapply(years, function(yi){
           mg <- lapply(months, function(mi) {
             out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
             grid.list.sub <- lapply(grid.list.aux, function(x) subsetGrid(x, years = yi, season = mi))
@@ -222,7 +226,6 @@ indexGrid <- function(tn = NULL,
         })
         tryCatch({bindGrid(yg, dimension = "time")}, error = function(err){unlist(yg, recursive = FALSE)})
       }
-    }
   })
   out <- suppressMessages(suppressWarnings(bindGrid(out.m, dimension = "member")))
   out[["Variable"]] <- list("varName" = index.code, 

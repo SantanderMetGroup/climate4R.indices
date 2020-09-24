@@ -18,3 +18,14 @@ dc_rnlg_agsn;Number_of_days_with_"high"_rain_in_Agronomic_Season;agroindexFAO;1;
 tm_agsn;Average_daily_tas_in_Agronomic_Season;agroindexFAO;1;1;0;1;degC;Average_daily_mean_TM
 dc_txh_agsn;Number_of_"hot"_tmax_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TX_days
 dc_tnh_agsn;Number_of_"hot"_tmin_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TN_days
+gsl;Growing_season_length;agroindexFAO_tier1;0;0;1;0;days;FAO:Growing_season_length
+avg;Temporal_avergae;agroindexFAO_tier1;1;1;1;1;;FAO:Temporal_avergae
+nd_thre;Number_of_days_from_threshold;agroindexFAO_tier1;1;1;1;1;;FAO:Days_exceeding_(either_below_or_above)_a_given_threshold 
+nhw;Number_of_heatwaves;agroindexFAO_tier1;0;1;0;0;;FAO:Heatwaves_as_defined_by_threshold_and_duration
+dr;Diurnal_temperature_range;agroindexFAO_tier1;1;1;0;0;degC;FAO:Diurnal_temperature_range
+prcptot;Total_precipitation_in_wet_days;agroindexFAO_tier1;0;0;0;1;mm;FAO:Total_precipitation_in_wet_days
+nrd;Number_of_rainy_days;agroindexFAO_tier1;0;0;0;1;Days;FAO:Number_of_rainy_(as_defined_by_wet.threshold)_days
+lds;Average-Maximum_length_of_dry_spells;agroindexFAO_tier1;0;0;0;1;Days;FAO:Average-Maximum_length_of_dry_(as_defined_by_wet.threshold)_spells
+sdii;Precipitation_intensity_in_wet_days;agroindexFAO_tier1;0;0;0;1;mm/day;FAO:Precipitation_intensity_in_wet_(as_defined_by_wet.threshold)_days
+prcptot_thre;Total_precipitation_in_strong_rainy_days;agroindexFAO_tier1;0;0;0;1;mm;FAO:Total_precipitation_in_strong_rainy_(as_defined_by_wet.threshold)_days
+ns;Number_of_spells;agroindexFAO_tier1;0;0;0;1;;Number_of_dry_or_wet_spells_based_on_as_defined_by_threshold_and_duration

@@ -4,7 +4,9 @@
 \name{ERAInterim_sst_1981_2010}
 \alias{ERAInterim_sst_1981_2010}
 \title{Exemplary data for \code{circIndexGrid.R}}
-\format{A grid object.}
+\format{
+A grid object.
+}
 \source{
 \url{https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era-interim} and \url{http://www.meteo.unican.es/udg-tap}.
 }
