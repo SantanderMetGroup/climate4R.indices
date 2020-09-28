@@ -4,7 +4,16 @@
 \alias{dr}
 \title{Function to compute the diurnal temperature range}
 \usage{
-dr(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25)
+dr(
+  tx,
+  tn,
+  dates,
+  year = NULL,
+  year.start = NULL,
+  year.end = NULL,
+  pnan = 25,
+  lat = NULL
+)
 }
 \arguments{
 \item{tx}{Vector with daily maximum temperature}
@@ -20,6 +29,8 @@ dr(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25)
 \item{year.end}{Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)}
 
 \item{pnan}{Any year with a percentage of NA data above "pnan" will be ignored}
+
+\item{lat}{Latitude (NULL) to indicate that latitude information is not used.}
 }
 \value{
 Mean diurnal temperature range (per year)

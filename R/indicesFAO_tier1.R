@@ -211,11 +211,12 @@ gsl <- function(tm, dates, lat, pnan = 25) {
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  
+avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
   }
@@ -261,10 +262,12 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -320,10 +323,12 @@ nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -371,10 +376,12 @@ nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, 
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -422,10 +429,12 @@ dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, p
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -472,10 +481,12 @@ prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -523,10 +534,12 @@ nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, ye
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -583,10 +596,13 @@ lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
+  
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -632,10 +648,13 @@ sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, y
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
+  
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -683,10 +702,13 @@ prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NU
 #' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
 #' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
+ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
+  
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis

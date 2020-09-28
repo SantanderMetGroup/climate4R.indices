@@ -201,6 +201,7 @@ indexGrid <- function(tn = NULL,
         datess <- as.Date(grid.list.aux[[1]][["Dates"]][["start"]])
         datess <- cbind(as.numeric(format(datess, "%Y")), as.numeric(format(datess, "%m")), as.numeric(format(datess, "%d")))
         lats <- grid.list.aux[[1]][["xyCoords"]][["y"]]
+       
         latloop <- lapply(1:length(lats), function(l) {
           lonloop <- lapply(1:getShape(grid.list.aux[[1]])["lon"], function(lo) {
             do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), "lat" = list(lats[l]), "dates" = list(datess), "index.code" = list(index.code)))

@@ -4,7 +4,15 @@
 \alias{avg}
 \title{Function to compute the average value of a daily time-series}
 \usage{
-avg(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25)
+avg(
+  tm,
+  dates,
+  year = NULL,
+  year.start = NULL,
+  year.end = NULL,
+  pnan = 25,
+  lat = NULL
+)
 }
 \arguments{
 \item{tm}{Vector with data (e.g. daily mean temperature)}
@@ -18,6 +26,8 @@ avg(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25)
 \item{year.end}{Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)}
 
 \item{pnan}{Any year with a percentage of NA data above "pnan" will be ignored}
+
+\item{lat}{Latitude (NULL) to indicate that latitude information is not used.}
 }
 \value{
 Average value (per year)

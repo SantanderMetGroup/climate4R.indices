@@ -11,7 +11,8 @@ nrd(
   year = NULL,
   year.start = NULL,
   year.end = NULL,
-  pnan = 25
+  pnan = 25,
+  lat = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ nrd(
 \item{year.end}{Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)}
 
 \item{pnan}{Any year with a percentage of NA data above "pnan" will be ignored}
+
+\item{lat}{Latitude (NULL) to indicate that latitude information is not used.}
 }
 \value{
 Number of rainy days (per year)

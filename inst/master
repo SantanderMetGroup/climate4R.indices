@@ -19,7 +19,7 @@ tm_agsn;Average_daily_tas_in_Agronomic_Season;agroindexFAO;1;1;0;1;degC;Average_
 dc_txh_agsn;Number_of_"hot"_tmax_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TX_days
 dc_tnh_agsn;Number_of_"hot"_tmin_days_in_Agronomic_Season;agroindexFAO;1;1;0;1;days;Number_of_"hot"_TN_days
 gsl;Growing_season_length;agroindexFAO_tier1;0;0;1;0;days;FAO:Growing_season_length
-avg;Temporal_avergae;agroindexFAO_tier1;1;1;1;1;;FAO:Temporal_avergae
+avg;Temporal_avergae;agroindexFAO_tier1;0;0;1;0;;FAO:Temporal_avergae
 nd_thre;Number_of_days_from_threshold;agroindexFAO_tier1;1;1;1;1;;FAO:Days_exceeding_(either_below_or_above)_a_given_threshold 
 nhw;Number_of_heatwaves;agroindexFAO_tier1;0;1;0;0;;FAO:Heatwaves_as_defined_by_threshold_and_duration
 dr;Diurnal_temperature_range;agroindexFAO_tier1;1;1;0;0;degC;FAO:Diurnal_temperature_range
