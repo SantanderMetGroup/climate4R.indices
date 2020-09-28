@@ -7,16 +7,19 @@
 gsl(tm, dates, lat, pnan = 25)
 }
 \arguments{
-\item{tm}{Vector of mean temperature data}
+\item{tm}{Vector with mean temperature data}
 
-\item{dates}{Matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)}
+\item{dates}{Matrix containing the full range of dates corresponding to "tm" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)}
 
-\item{lat}{Latitude (Integer)}
+\item{lat}{Latitude (in degrees)}
 
-\item{pnan}{maximum percentage of missing data (tm) allowed in one year to compute the indices}
+\item{pnan}{Maximum percentage of missing data allowed in one year to compute the indices}
+}
+\value{
+Number of days (per year)
 }
 \description{
-see http://etccdi.pacificclimate.org/list_27_indices.shtml
+See http://etccdi.pacificclimate.org/list_27_indices.shtml for details
 }
 \author{
 R. Manzanas

@@ -173,7 +173,7 @@ indexGrid <- function(tn = NULL,
                         "month" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
                         "year" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
                         "climatology" = list(unique(getYearsAsINDEX(grid.list.aux[[1]]))))
-      }
+      
       if (!is.null(baseline)) {
         baseline.sub <- suppressWarnings(subsetGrid(baseline, members = m))
         if (is.null(index.arg.list[["percent"]]) & is.null(index.arg.list[["value"]])) stop("Baseline provided but percent or value not specified.")
@@ -225,6 +225,7 @@ indexGrid <- function(tn = NULL,
           tryCatch({bindGrid(mg, dimension = "time")}, error = function(err){unlist(mg, recursive = FALSE)})
         })
         tryCatch({bindGrid(yg, dimension = "time")}, error = function(err){unlist(yg, recursive = FALSE)})
+      }
       }
   })
   out <- suppressMessages(suppressWarnings(bindGrid(out.m, dimension = "member")))

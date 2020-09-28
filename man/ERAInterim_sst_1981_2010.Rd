@@ -14,7 +14,7 @@ A grid object.
 This exemplary grid contains monthly mean data of sea surface temperature from ERA-Interim renalysis, for the period 1981-2010.
 This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
 log-in is requiered, 
-see \code{\link[loadeR]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
+see \code{\link[loadeR.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
 (package \href{https://github.com/SantanderMetGroup/loadeR}{\code{loadeR}}) in the following manner:
 
 \code{loginUDG("username", "pasword")}\cr 

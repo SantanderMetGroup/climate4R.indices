@@ -1,6 +1,32 @@
 #' @title Wrapper to call FAO_tier1 index calculation functions.
 #' @param index.code To call to the atomic function of the same name
-#' @param ... Other parameters that can be passed to the selected index function.
+#' @param ... Other parameters that can be passed to the selected index function (see Details).
+#' @details Index calculation is done by different functions that receive the same name 
+#' as the corresponding index code. Therefore, type \code{?index.code} to know the arguments
+#' that are used in each case, e.g. \code{?gsl}.
+#' @section Index codes:
+#'    \strong{gsl} 
+#'    
+#'    \strong{avg}  
+#'    
+#'    \strong{nd_thre}
+#'  
+#'    \strong{nhw}
+#'    
+#'    \strong{dr}
+#'    
+#'    \strong{prcptot}
+#'    
+#'    \strong{nrd}
+#'    
+#'    \strong{lds}
+#'    
+#'    \strong{sdii}
+#'    
+#'    \strong{prcptot_thre}
+#'    
+#'    \strong{ns}
+#'    
 #' @author M. Iturbide
 #' @export
 
@@ -17,38 +43,44 @@ agroindexFAO_tier1 <- function(index.code, ...) {
 ##############
 ## binSpell ##
 ##############
-binSpell <- function(v) {
-  # Function to compute length of binary (e.g. 0=dry, 1=wet) spells
-  # Returns a 0/1 sequence representing spells, as well as the duration of each spell
+#' @title Function to compute number and length of binary (e.g. 0=dry, 1=wet) spells
+#' @return Sequence of spells, including the duration of each spell. The search is done within the "data" vector
+#' @param data Vector with data (e.g. daily precipitation)
+#' @author R. Manzanas
+#' @export
+
+binSpell <- function(data) {
   
-  # v: vector of data (e.g. daily precipitation)
-  ix <- c(which(v[-length(v)] != v[-1]), length(v))  
+  ix <- c(which(data[-length(data)] != data[-1]), length(data))  
   
   # output list
   out <- list()
   out$len <- diff(c(0, ix))
-  out$val <- v[ix]
+  out$val <- data[ix]
   return(out)
 }
 
 ##################
 ## yearStartEnd ##
 ##################
+#' @title Function to find the position marking the start and the end of a given year (or a user-defined portion of the year)
+#' @return Indices marking the start and the end of a given year (or a user-defined portion of the year). The search is done within the "dates" matrix
+#' @param dates Matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param year Year of interest (e.g. 1995)
+#' @param year.start User-defined start of the year [in "YYYY-MM-DD" format]
+#' @param year.end User-defined end of the year [in "YYYY-MM-DD" format]
+#' @author R. Manzanas
+#' @export
+
 yearStartEnd <- function(dates, year, year.start = NULL, year.end = NULL) {
-  # Function to find the position marking the start and the end of a given year (or a user-defined portion of the year). The search is done within the "dates" matrix
-  
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # year: year of interest
-  # year.start: user-defined start of the year [in "YYYY-MM-DD" format]
-  # year.end: user-defined end of the year [in "YYYY-MM-DD" format]
   
   if (!is.null(year.start) & !is.null(year.end)) {
     ind.start = which(dates[, 1] == as.numeric(substr(year.start, 1, 4)) &   # start of the year (as defined by the user)
                         dates[, 2] == as.numeric(substr(year.start, 6, 7)) & 
                         dates[, 3] == as.numeric(substr(year.start, 9, 10)))
     ind.end = which(dates[, 1] == as.numeric(substr(year.end, 1, 4)) &   # end of the year (as defined by the user)
-                       dates[, 2] == as.numeric(substr(year.end, 6, 7)) & 
-                       dates[, 3] == as.numeric(substr(year.end, 9, 10)))
+                      dates[, 2] == as.numeric(substr(year.end, 6, 7)) & 
+                      dates[, 3] == as.numeric(substr(year.end, 9, 10)))
     
   } else {
     ind.start = which(dates[, 1] == year & dates[, 2] == 1 & dates[, 3] == 1)  # year's definition by default (1-Jan to 31-Dec)
@@ -67,18 +99,18 @@ yearStartEnd <- function(dates, year, year.start = NULL, year.end = NULL) {
 #########
 ## gsl ##
 #########
-
 #' @title Function to compute the growing season length
-#' @description see http://etccdi.pacificclimate.org/list_27_indices.shtml
-#' @value Number of days/year
-#' @param lat Latitude (Integer)
-#' @param dates Matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-#' @param tm Vector of mean temperature data
-#' @param pnan Maximum percentage of missing data (tm) allowed in one year to compute the indices
+#' @description See http://etccdi.pacificclimate.org/list_27_indices.shtml for details
+#' @return Number of days (per year)
+#' @param tm Vector with mean temperature data
+#' @param lat Latitude (in degrees)
+#' @param dates Matrix containing the full range of dates corresponding to "tm" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param pnan Maximum percentage of missing data allowed in one year to compute the indices
 #' @author R. Manzanas
 #' @export
-#' 
+
 gsl <- function(tm, dates, lat, pnan = 25) {
+  
   year = unique(dates[, 1])  # years of analysis
   
   ## initializing output vectors
@@ -156,14 +188,14 @@ gsl <- function(tm, dates, lat, pnan = 25) {
       message(sprintf("... year %d not complete ...", iyear))
     }
   }
+  
   # output list
   index = list()
   index$year = year
   index$init = init
   index$end = end
   index$GSL = GSL
-  # return(index)
-  return(GSL)
+  return(index)
 }
 #index = gsl(tm, dates, lat)  # call to the function
 
@@ -171,15 +203,18 @@ gsl <- function(tm, dates, lat, pnan = 25) {
 #########
 ## avg ##
 #########
+#' @title Function to compute the average value of a daily time-series 
+#' @return Average value (per year)
+#' @param tm Vector with data (e.g. daily mean temperature)
+#' @param dates Matrix containing the full range of dates corresponding to "tm" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the average value of a time-series
-  
-  # tm: vector of data (e.g. daily mean temperature)
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -191,9 +226,9 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
   for (iyear in year) {
     
     if (!is.null(year.start) & !is.null(year.end)) {
-    ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
+      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
-    ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
+      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
     }
     
     if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
@@ -216,16 +251,20 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
 #############
 ## nd_thre ##
 #############
+#' @title Function to compute the number of days exceeding (either below or above) a given threshold 
+#' @return Number of days (per year)
+#' @param data Vector with data (e.g. daily mean temperature)
+#' @param dates Matrix containing the full range of dates corresponding to "data" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param threshold Threshold considered. Must be in the same units of "data"
+#' @param direction "geq" (greater or equal to) or "leq" (lower or equal to)
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the number of days exceeding (either below or above) a given threshold 
-  
-  # data: vector of data (e.g. daily mean temperature)
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # direction: "geq" (greater or equal to) or "leq" (lower or equal to)
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -247,7 +286,7 @@ nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year
         data.year = data[ind.year$start:ind.year$end]
         if (sum(is.na(data.year)) < 0.01*pnan*length(data.year)) {  # asking for a minimum of pnan (%) of non-missing days 
           if (direction == "geq") {
-          index[year == iyear] = sum(data.year >= threshold, na.rm = T)
+            index[year == iyear] = sum(data.year >= threshold, na.rm = T)
           } else if (direction == "leq") {
             index[year == iyear] = sum(data.year <= threshold, na.rm = T)
           }
@@ -271,17 +310,20 @@ nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year
 #########
 ## nhw ##
 #########
+#' @title Function to compute the number of heatwaves (as defined by threshold and duration)
+#' @return Number of heatwaves (per year)
+#' @param tx Vector with daily maximum temperature
+#' @param dates Matrix containing the full range of dates corresponding to "tx" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param threshold Threshold considered. Must be in the same units of "tx"
+#' @param duration Duration (in days) considered to define the heatwave
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the number of heatwaves (as defined by threshold and duration)
-  
-  # tx: vector of data (e.g. daily maximum temperature)
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # threshold: threshold used to define the heatwave
-  # duration: duration (in days) used to define te heatwave
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -291,7 +333,7 @@ nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, 
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
@@ -320,16 +362,19 @@ nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, 
 ########
 ## dr ##
 ########
+#' @title Function to compute the diurnal temperature range
+#' @return Mean diurnal temperature range (per year)
+#' @param tx Vector with daily maximum temperature
+#' @param tn Vector with daily minimum temperature
+#' @param dates Matrix containing the full range of dates corresponding to "tx" and "tn" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the diurnal temperature range
-  
-  # tx: vector with daily maximum temperature
-  # tn: vector with daily minimum temperature
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -339,7 +384,7 @@ dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, p
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
@@ -368,16 +413,19 @@ dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, p
 #############
 ## prcptot ##
 #############
+#' @title Function to compute total precipitation in wet days
+#' @return Total precipitation in wet days (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute total precipitation in wet days
-  
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # wet.threshold: threshold used to define wet days
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -387,7 +435,7 @@ prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
@@ -415,16 +463,19 @@ prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL
 #########
 ## nrd ##
 #########
+#' @title Function to compute number of rainy days
+#' @return Number of rainy days (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute number of rainy days
-  
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # wet.threshold: threshold used to define wet days
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -462,17 +513,20 @@ nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, ye
 #########
 ## lds ##
 #########
+#' @title Function to compute the average/maximum length of dry (as defined by wet.threshold) spells
+#' @return Average/maximum length of dry spells (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param length.spell Either "mean" or "maximum" length spell
+#' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the average/maximum length of dry (as defined by wet.threshold) spells
-  
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # length.spell: either "mean" or "maximum" length spell
-  # wet.threshold: threshold used to define wet days
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -482,7 +536,7 @@ lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-   
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
@@ -520,16 +574,19 @@ lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL
 ##########
 ## sdii ##
 ##########
+#' @title Function to compute precipitation intensity in wet (as defined by wet.threshold) days
+#' @return Precipitation intensity in wet days (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute precipitation intensity in wet (as defined by wet.threshold) days
-  
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # wet.threshold: threshold used to define wet days
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
@@ -539,7 +596,7 @@ sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, y
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-   
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
@@ -566,17 +623,20 @@ sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, y
 ##################
 ## prcptot_thre ##
 ##################
+#' @title Function to compute total amount of precipitation fallen in strong (as defined by threshold) rainy days
+#' @return Total amount of precipitation fallen in strong rainy days (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param threshold Threshold considered to define strong rain. Must be in the same units of "pr"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute total amount of precipitation fallen in strong (as defined by threshold) rainy days
   
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # threshold: threshold used to define strong rain
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
-    
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
   }
@@ -591,7 +651,7 @@ prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NU
     } else {
       ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
     }
-
+    
     if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
       if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
         pr.year = pr[ind.year$start:ind.year$end]
@@ -612,19 +672,22 @@ prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NU
 ########
 ## ns ##
 ########
+#' @title Function to compute the number of spells (either dry or wet), as defined by threshold and duration
+#' @return Number of spells (either dry or wet) (per year)
+#' @param pr Vector with daily precipitation
+#' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
+#' @param duration Duration (in days) of spells
+#' @param type.spell Either "dry" or "wet"
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @author R. Manzanas
+#' @export
+
 ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NULL, year.start = NULL, year.end = NULL, pnan = 25) {
-  # Function to compute the number of spells (either dry or wet), as defined by threshold and duration
   
-  # pr: vector with daily precipitation
-  # dates: matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-  # wet.threshold: threshold used to define wet days
-  # duration: duration (in days) of spells
-  # type.spell: either "dry" or "wet" 
-  # year: vector with years of interest
-  # year.start: vector of dates [in "YYYY-MM-DD" format] defining the beginnig of a portion of interest within each year (e.g., the agronomic season)
-  # year.end: vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-  # pnan: any year with a percentage of NA data above pnan will be ignored
-   
   if (is.null(year)) {
     year = unique(dates[, 1])  # years of analysis
   }
@@ -633,7 +696,7 @@ ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NU
   index = rep(NA, 1, length(year))  
   
   for (iyear in year) {
-
+    
     if (!is.null(year.start) & !is.null(year.end)) {
       ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
     } else {
