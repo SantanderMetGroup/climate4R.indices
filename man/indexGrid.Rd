@@ -9,6 +9,7 @@ indexGrid(
   tx = NULL,
   tm = NULL,
   pr = NULL,
+  any = NULL,
   baseline = NULL,
   index.code,
   time.resolution = "year",
@@ -26,6 +27,8 @@ indexGrid(
 \item{tm}{A climate4R dataset of daily maximum temperature (degrees C)}
 
 \item{pr}{A climate4R dataset of daily precipitation (mm)}
+
+\item{any}{A climate4R dataset of any variable.}
 
 \item{baseline}{Optional climate4R dataset. Only used if \code{index.code = "P"}, for calculating the relevant percentiles.}
 

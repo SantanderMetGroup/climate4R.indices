@@ -13,7 +13,8 @@ Imports: transformeR (>= 1.5.2),
          abind
 Suggests: loadeR,
           visualizeR,
-          downscaleR
+          downscaleR,
+          climate4R.datasets
 Authors@R: as.person(c(
     "Santander Meteorology Group <http://meteo.unican.es> [cph]",
     "Joaquín Bedia <bediaj@unican.es> [ctb]",

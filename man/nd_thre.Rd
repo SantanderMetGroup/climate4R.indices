@@ -5,7 +5,7 @@
 \title{Function to compute the number of days exceeding (either below or above) a given threshold}
 \usage{
 nd_thre(
-  data,
+  any,
   dates,
   threshold,
   direction = "geq",
@@ -17,7 +17,7 @@ nd_thre(
 )
 }
 \arguments{
-\item{data}{Vector with data (e.g. daily mean temperature)}
+\item{any}{Vector with data of ANY variable (e.g. daily mean temperature)}
 
 \item{dates}{Matrix containing the full range of dates corresponding to "data" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)}
 

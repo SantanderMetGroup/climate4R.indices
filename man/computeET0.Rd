@@ -18,6 +18,20 @@ computeET0(lat, dates, tx, tn)
 \description{
 computes ET0, accroding to Hargreaves equation
 }
+\details{
+#' @title Occurrence and length of binary spells
+#' @description Computes ccurrence and length of binary spells)
+#' @param v Vector
+#' @author R. Manzanas
+
+binSpell <-  function(v) {
+  ix <- c(which(v[-length(v)] != v[-1]), length(v));
+  out <- list()
+  out$len <- diff(c(0, ix))
+  out$val <- v[ix]
+  return(out)
+}
+}
 \author{
 R. Manzanas
 }

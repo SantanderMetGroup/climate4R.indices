@@ -21,6 +21,7 @@
 #' @param tx A climate4R dataset of daily maximum temperature (degrees C)
 #' @param tm A climate4R dataset of daily maximum temperature (degrees C)
 #' @param pr A climate4R dataset of daily precipitation (mm)
+#' @param any A climate4R dataset of any variable.
 #' @param baseline Optional climate4R dataset. Only used if \code{index.code = "P"}, for calculating the relevant percentiles.
 #' @param index.code Character string, indicating the specific code of the index (see Details).
 #' @param time.resolution Output time resolution. Choices are "month", "year" (default) and "climatology".
@@ -65,6 +66,7 @@ indexGrid <- function(tn = NULL,
                       tx = NULL,
                       tm = NULL,
                       pr = NULL,
+                      any = NULL,
                       baseline = NULL,
                       index.code,
                       time.resolution = "year",
@@ -106,9 +108,9 @@ indexGrid <- function(tn = NULL,
   }
   aux <- read.master()
   metadata <- aux[grep(paste0("^", index.code, "$"), aux$code, fixed = FALSE), ]
-  a <- c(!is.null(tn), !is.null(tx), !is.null(tm), !is.null(pr)) %>% as.numeric()
+  a <- c(!is.null(tn), !is.null(tx), !is.null(tm), !is.null(pr), !is.null(any)) %>% as.numeric()
   if (!index.code %in% c("P")) {
-    b <- metadata[ , 4:7] %>% as.numeric()
+    b <- metadata[ , 4:8] %>% as.numeric()
     if (any(b - a > 0)) {
       stop("The required input variable(s) for ", index.code,
            " index calculation are missing\nType \'?",
@@ -118,7 +120,7 @@ indexGrid <- function(tn = NULL,
     b <- a
     if (sum(b) > 1) stop(index.code, " is applied to single variable.")
   }
-  grid.list <- list("tn" = tn, "tx" = tx, "tm" = tm, "pr" = pr)[which(as.logical(b))]
+  grid.list <- list("tn" = tn, "tx" = tx, "tm" = tm, "pr" = pr, "any" = any)[which(as.logical(b))]
   namesgridlist <- names(grid.list)
   # Operations for the consistency of the grids
   locs <- lapply(grid.list, isRegular)
@@ -201,10 +203,12 @@ indexGrid <- function(tn = NULL,
         datess <- as.Date(grid.list.aux[[1]][["Dates"]][["start"]])
         datess <- cbind(as.numeric(format(datess, "%Y")), as.numeric(format(datess, "%m")), as.numeric(format(datess, "%d")))
         lats <- grid.list.aux[[1]][["xyCoords"]][["y"]]
-       
+        index.arg.list[["dates"]] <- datess
+        index.arg.list[["index.code"]] = index.code
         latloop <- lapply(1:length(lats), function(l) {
           lonloop <- lapply(1:getShape(grid.list.aux[[1]])["lon"], function(lo) {
-            do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), "lat" = list(lats[l]), "dates" = list(datess), "index.code" = list(index.code)))
+            index.arg.list[["lat"]] <- lats[l] 
+            do.call(metadata$indexfun, c(lapply(input.arg.list, function(z) z[, l, lo]), index.arg.list))
           })
           do.call("abind", list(lonloop, along = 0))
         })

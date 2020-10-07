@@ -254,7 +254,7 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
 #############
 #' @title Function to compute the number of days exceeding (either below or above) a given threshold 
 #' @return Number of days (per year)
-#' @param data Vector with data (e.g. daily mean temperature)
+#' @param any Vector with data of ANY variable (e.g. daily mean temperature)
 #' @param dates Matrix containing the full range of dates corresponding to "data" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param threshold Threshold considered. Must be in the same units of "data"
 #' @param direction "geq" (greater or equal to) or "leq" (lower or equal to)
@@ -266,7 +266,8 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
 #' @author R. Manzanas
 #' @export
 
-nd_thre <- function(data, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+nd_thre <- function(any, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+  data <- any
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
   if (is.null(year)) {
