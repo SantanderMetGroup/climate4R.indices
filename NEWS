@@ -14,3 +14,7 @@
  * Include weather types circulation indices
  * Include new exemplary data: NCEP_slp_2001_2010
  * Bug fix in HDD and CDD indices calculation
+ 
+## v0.2.0 (on-going) 
+ * New function: linearTrend.R --> estimates the slope of the linear trend
+ 
