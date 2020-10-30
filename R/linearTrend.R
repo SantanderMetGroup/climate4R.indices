@@ -20,7 +20,7 @@
 #'  intervals and some other related statistics for timeseries using 
 #'  Santer et al. (2008) method modified for dealing with missing data in
 #'  time series.  
-#' @param x A climate4R predictor dataset
+#' @param grid A climate4R predictor dataset
 #' @param p A numeric value. Confidence level for the uncertainty interval (0<p<1).
 #' @details ##  Uses a model y = a + b*x + e, where e is assumed to be an AR(1) process. 
 #'  Applies ordinary least squares (OLS) regression. Estimates the trend slope's
