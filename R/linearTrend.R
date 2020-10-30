@@ -150,7 +150,7 @@ linearTrend <- function(grid, p = 0.90){
   }
 
   if (getShape(grid,"var") > 1) stop("Multigrid objects are not accepted. Please consider using `subsetGrid` function to build single-variable C4R objects.")
-  x <- julian(as.POSIXct(getRefDates(x))) %>% as.numeric()
+  x <- julian(as.POSIXct(getRefDates(grid))) %>% as.numeric()
   lapply(1:getShape(grid,"member"), FUN = function(z) {
     grid %<>% subsetGrid(members = z)
     b <- pval <- irrc <- climatology(grid)
