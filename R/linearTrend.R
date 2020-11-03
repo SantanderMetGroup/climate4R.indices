@@ -143,6 +143,7 @@
 #' spatialPlot(b, backdrop.theme = "coastline", main = "Estimated slope of the linear trend (VALUE)")
 
 linearTrend <- function(grid, p = 0.90){
+  message("The slope of the linear trend is estimated based on the temporal resolution of the data. Please consider using the function aggregateGrid prior to the call of linearTrend to adequate the data to your resolution of interest.")
   grid <- if (isRegular(grid)) {
     redim(grid, var = TRUE)
   } else {
@@ -150,7 +151,7 @@ linearTrend <- function(grid, p = 0.90){
   }
 
   if (getShape(grid,"var") > 1) stop("Multigrid objects are not accepted. Please consider using `subsetGrid` function to build single-variable C4R objects.")
-  x <- julian(as.POSIXct(getRefDates(grid))) %>% as.numeric()
+  x <- 1:getShape(grid,"time")
   lapply(1:getShape(grid,"member"), FUN = function(z) {
     grid %<>% subsetGrid(members = z)
     b <- pval <- irrc <- climatology(grid)
