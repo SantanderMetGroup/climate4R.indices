@@ -153,7 +153,7 @@ linearTrend <- function(grid, p = 0.90){
   if (getShape(grid,"var") > 1) stop("Multigrid objects are not accepted. Please consider using `subsetGrid` function to build single-variable C4R objects.")
   x <- 1:getShape(grid,"time")
   lapply(1:getShape(grid,"member"), FUN = function(z) {
-    grid %<>% subsetGrid(members = z)
+    grid %<>% subsetGrid(members = z) %>% redim(member = FALSE)
     b <- pval <- irrc <- climatology(grid)
     y <- if (isRegular(grid)){
       array3Dto2Dmat(grid$Data)
