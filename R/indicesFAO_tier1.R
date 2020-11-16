@@ -735,7 +735,7 @@ ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NU
           if (type.spell == "wet") {
             index[year == iyear] = sum(bin$len[which(bin$val)] >= duration, na.rm = T)
           } else if (type.spell == "dry") {
-            index[year == iyear] = sum(bin$len[!which(bin$val)] >= duration, na.rm = T) 
+            index[year == iyear] = sum(bin$len[which(!bin$val)] >= duration, na.rm = T) 
           }
         }
       }
