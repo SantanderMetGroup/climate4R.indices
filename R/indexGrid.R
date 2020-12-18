@@ -78,7 +78,8 @@ indexGrid <- function(tn = NULL,
   choices <- c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
                "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
                "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
-               "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns")
+               "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns",
+               "agg_block")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
@@ -87,23 +88,23 @@ indexGrid <- function(tn = NULL,
   time.resolution <- match.arg(time.resolution,
                                choices = c("month", "year", "climatology"))
   if (!is.null(tn)) {
-    if (getTimeResolution(tn) != "DD") stop("Daily data is required as input", call. = FALSE)
+    #if (getTimeResolution(tn) != "DD") stop("Daily data is required as input", call. = FALSE)
   }
   if (!is.null(tx)) {
-    if (getTimeResolution(tx) != "DD") stop("Daily data is required as input", call. = FALSE)
+    #if (getTimeResolution(tx) != "DD") stop("Daily data is required as input", call. = FALSE)
   }
   if (!is.null(tm)) {
-    if (getTimeResolution(tm) != "DD") stop("Daily data is required as input", call. = FALSE)
+    #if (getTimeResolution(tm) != "DD") stop("Daily data is required as input", call. = FALSE)
   }
   if (!is.null(pr)) {
-    if (getTimeResolution(pr) != "DD") stop("Daily data is required as input", call. = FALSE)
+    #if (getTimeResolution(pr) != "DD") stop("Daily data is required as input", call. = FALSE)
   }
   if (!is.null(baseline)) {
     if (!index.code %in% c("P")) {
       warning("Index.code is not 'P', baseline ignored")
       baseline <- NULL
     } else {
-      if (getTimeResolution(baseline) != "DD") stop("Daily data is required as input", call. = FALSE)
+      #if (getTimeResolution(baseline) != "DD") stop("Daily data is required as input", call. = FALSE)
     }
   }
   aux <- read.master()
@@ -148,33 +149,33 @@ indexGrid <- function(tn = NULL,
   # Member loop
   message("[", Sys.time(), "] Calculating ", index.code, " ...")
   out.m <- apply_fun(1:n.mem, function(m){
-     if (sum(b) == 1 & is.null(baseline) & metadata$indexfun != "agroindexFAO" & metadata$indexfun != "agroindexFAO_tier1") {
-        # Indices from a single variable
-        aggr.arg <- switch(time.resolution,
-                           "month" = "aggr.m",
-                           "year" = "aggr.y",
-                           "climatology" = "clim.fun")
-        fun.call <- switch(time.resolution,
-                           "month" = "aggregateGrid",
-                           "year" = "aggregateGrid",
-                           "climatology" = "climatology")
-        input.arg.list <- list()
-        input.arg.list[["grid"]] <- subsetGrid(grid.list[[1]], members = m)
-        input.arg.list[[aggr.arg]] <- c(list("FUN" = metadata$indexfun), index.arg.list)
-        suppressMessages(do.call(fun.call, input.arg.list))
-        
-        
-      } else {
-        # Indices from multiple variables or for baseline methods
-        grid.list.aux <- lapply(grid.list, function(x) subsetGrid(x, members = m))
-        months <- switch(time.resolution,
-                         "month" = as.list(getSeason(grid.list.aux[[1]])),
-                         "year" = list(getSeason(grid.list.aux[[1]])),
-                         "climatology" = list(getSeason(grid.list.aux[[1]])))
-        years <- switch(time.resolution,
-                        "month" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
-                        "year" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
-                        "climatology" = list(unique(getYearsAsINDEX(grid.list.aux[[1]]))))
+    if (sum(b) == 1 & is.null(baseline) & metadata$indexfun != "agroindexFAO" & metadata$indexfun != "agroindexFAO_tier1") {
+      # Indices from a single variable
+      aggr.arg <- switch(time.resolution,
+                         "month" = "aggr.m",
+                         "year" = "aggr.y",
+                         "climatology" = "clim.fun")
+      fun.call <- switch(time.resolution,
+                         "month" = "aggregateGrid",
+                         "year" = "aggregateGrid",
+                         "climatology" = "climatology")
+      input.arg.list <- list()
+      input.arg.list[["grid"]] <- subsetGrid(grid.list[[1]], members = m)
+      input.arg.list[[aggr.arg]] <- c(list("FUN" = metadata$indexfun), index.arg.list)
+      suppressMessages(do.call(fun.call, input.arg.list))
+      
+      
+    } else {
+      # Indices from multiple variables or for baseline methods
+      grid.list.aux <- lapply(grid.list, function(x) subsetGrid(x, members = m))
+      months <- switch(time.resolution,
+                       "month" = as.list(getSeason(grid.list.aux[[1]])),
+                       "year" = list(getSeason(grid.list.aux[[1]])),
+                       "climatology" = list(getSeason(grid.list.aux[[1]])))
+      years <- switch(time.resolution,
+                      "month" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
+                      "year" = as.list(unique(getYearsAsINDEX(grid.list.aux[[1]]))),
+                      "climatology" = list(unique(getYearsAsINDEX(grid.list.aux[[1]]))))
       
       if (!is.null(baseline)) {
         baseline.sub <- suppressWarnings(subsetGrid(baseline, members = m))
@@ -231,7 +232,7 @@ indexGrid <- function(tn = NULL,
         })
         tryCatch({bindGrid(yg, dimension = "time")}, error = function(err){unlist(yg, recursive = FALSE)})
       }
-      }
+    }
   })
   out <- suppressMessages(suppressWarnings(bindGrid(out.m, dimension = "member")))
   out[["Variable"]] <- list("varName" = index.code, 
