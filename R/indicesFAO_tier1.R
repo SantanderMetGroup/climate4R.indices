@@ -27,11 +27,13 @@
 #'    
 #'    \strong{ns}
 #'    
+#'    \strong{agg_block}
+#'    
 #' @author M. Iturbide
 #' @export
 
 agroindexFAO_tier1 <- function(index.code, ...) {
-  choices <- c("gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns")
+  choices <- c("gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "agg_block")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   do.call(index.code, list(...))
 }
@@ -67,24 +69,24 @@ binSpell <- function(data) {
 #' @return Indices marking the start and the end of a given year (or a user-defined portion of the year). The search is done within the "dates" matrix
 #' @param dates Matrix containing the full range of dates (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param year Year of interest (e.g. 1995)
-#' @param year.start User-defined start of the year [in "YYYY-MM-DD" format]
-#' @param year.end User-defined end of the year [in "YYYY-MM-DD" format]
+#' @param date.start User-defined start of the year [in "YYYY-MM-DD" format]
+#' @param date.end User-defined end of the year [in "YYYY-MM-DD" format]
 #' @author R. Manzanas
 #' @export
 
-yearStartEnd <- function(dates, year, year.start = NULL, year.end = NULL) {
-  
-  if (!is.null(year.start) & !is.null(year.end)) {
-    ind.start = which(dates[, 1] == as.numeric(substr(year.start, 1, 4)) &   # start of the year (as defined by the user)
-                        dates[, 2] == as.numeric(substr(year.start, 6, 7)) & 
-                        dates[, 3] == as.numeric(substr(year.start, 9, 10)))
-    ind.end = which(dates[, 1] == as.numeric(substr(year.end, 1, 4)) &   # end of the year (as defined by the user)
-                      dates[, 2] == as.numeric(substr(year.end, 6, 7)) & 
-                      dates[, 3] == as.numeric(substr(year.end, 9, 10)))
-    
-  } else {
-    ind.start = which(dates[, 1] == year & dates[, 2] == 1 & dates[, 3] == 1)  # year's definition by default (1-Jan to 31-Dec)
-    ind.end = which(dates[, 1] == year & dates[, 2] == 12 & dates[, 3] == 31)  # year's definition by default (1-Jan to 31-Dec)
+yearStartEnd <- function (dates, year = NULL, date.start = NULL, date.end = NULL) 
+{
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.start = which(dates[, 1] == as.numeric(substr(date.start, 1, 4)) 
+                      & dates[, 2] == as.numeric(substr(date.start, 6, 7)) 
+                      & dates[, 3] == as.numeric(substr(date.start, 9, 10)))
+    ind.end = which(dates[, 1] == as.numeric(substr(date.end, 1, 4)) 
+                    & dates[, 2] == as.numeric(substr(date.end, 6, 7)) 
+                    & dates[, 3] == as.numeric(substr(date.end, 9, 10)))
+  }
+  else if (!is.null(year)) {
+    ind.start = which(dates[, 1] == year & dates[, 2] == 1 & dates[, 3] == 1)
+    ind.end = which(dates[, 1] == year & dates[, 2] == 12 & dates[, 3] == 31)
   }
   out = list()
   out$start = ind.start
@@ -123,14 +125,14 @@ gsl <- function(tm, dates, lat, pnan = 25) {
     ## definition of the year
     if (lat >= 0) {  # northern hemisphere (year: Jan-Dec)
       year.init = which(dates[, 1] == iyear & dates[, 2] == 1 & dates[, 3] == 1)
-      year.end = which(dates[, 1] == iyear & dates[, 2] == 12 & dates[, 3] == 31)
+      date.end = which(dates[, 1] == iyear & dates[, 2] == 12 & dates[, 3] == 31)
     } else {  # southern hemisphere (year: Jul-Jun)
       year.init = which(dates[, 1] == iyear & dates[, 2] == 7 & dates[, 3] == 1)
-      year.end = which(dates[, 1] == iyear + 1 & dates[, 2] == 6 & dates[, 3] == 30)
+      date.end = which(dates[, 1] == iyear + 1 & dates[, 2] == 6 & dates[, 3] == 30)
     }
     
-    if (length(year.init) > 0 & length(year.end) > 0) {  # checking for complete year
-      ind.year = year.init:year.end;  nday = length(ind.year)
+    if (length(year.init) > 0 & length(date.end) > 0) {  # checking for complete year
+      ind.year = year.init:date.end;  nday = length(ind.year)
       dates.year = dates[ind.year, ]
       
       ## tm in year
@@ -197,8 +199,6 @@ gsl <- function(tm, dates, lat, pnan = 25) {
   index$GSL = GSL
   return(index)
 }
-#index = gsl(tm, dates, lat)  # call to the function
-
 
 #########
 ## avg ##
@@ -208,46 +208,32 @@ gsl <- function(tm, dates, lat, pnan = 25) {
 #' @param tm Vector with data (e.g. daily mean temperature)
 #' @param dates Matrix containing the full range of dates corresponding to "tm" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+avg <- function(tm, dates, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        tm.year = tm[ind.year$start:ind.year$end]
-        if (sum(is.na(tm.year)) < 0.01*pnan*length(tm.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          index[year == iyear] = mean(tm.year, na.rm = T)  
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      tm.year = tm[ind.year$start:ind.year$end]
+      if (sum(is.na(tm.year)) < 0.01*pnan*length(tm.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        index = mean(tm.year, na.rm = T)  
       }
     }
   }
   return(index)
 }
-
-# index = avg(tm, dates)  # call to the function
-# index = avg(tm, dates, year = 1994:2018,  # call to the function
-#                year.start = AS.dates[[1]]$sdate$days[, 15], 
-#                year.end = AS.dates[[1]]$edate$days[, 15])  
 
 #############
 ## nd_thre ##
@@ -259,111 +245,80 @@ avg <- function(tm, dates, year = NULL, year.start = NULL, year.end = NULL, pnan
 #' @param threshold Threshold considered. Must be in the same units of "data"
 #' @param direction "geq" (greater or equal to) or "leq" (lower or equal to)
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-nd_thre <- function(any, dates, threshold, direction = "geq", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+nd_thre <- function(any, dates, threshold, direction = "geq", year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   data <- any
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$end) & !is.na(ind.year$end)) {
-        data.year = data[ind.year$start:ind.year$end]
-        if (sum(is.na(data.year)) < 0.01*pnan*length(data.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          if (direction == "geq") {
-            index[year == iyear] = sum(data.year >= threshold, na.rm = T)
-          } else if (direction == "leq") {
-            index[year == iyear] = sum(data.year <= threshold, na.rm = T)
-          }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$end) & !is.na(ind.year$end)) {
+      data.year = data[ind.year$start:ind.year$end]
+      if (sum(is.na(data.year)) < 0.01*pnan*length(data.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        if (direction == "geq") {
+          index = sum(data.year >= threshold, na.rm = T)
+        } else if (direction == "leq") {
+          index = sum(data.year <= threshold, na.rm = T)
         }
       }
     }
   }
   return(index)
 }
-# index = nd_thre(tm, dates, 26, direction = "geq")  # call to the function
-# index = nd_thre(pr, dates, 50, direction = "geq")  
-# index = nd_thre(tm, dates, 26, direction = "geq",  # call to the function
-#                year = 1994:2018, 
-#                year.start = AS.dates[[1]]$sdate$days[, 15], 
-#                year.end = AS.dates[[1]]$edate$days[, 15])  
-# index = nd_thre(pr, dates, 50, direction = "geq",  # call to the function
-#                year = 1994:2018, 
-#                year.start = AS.dates[[1]]$sdate$days[, 15], 
-#                year.end = AS.dates[[1]]$edate$days[, 15])  
 
 #########
 ## nhw ##
 #########
 #' @title Function to compute the number of heatwaves (as defined by threshold and duration)
-#' @return Number of heatwaves (per year)
+#' @return Number of heatwaves 
 #' @param tx Vector with daily maximum temperature
 #' @param dates Matrix containing the full range of dates corresponding to "tx" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param threshold Threshold considered. Must be in the same units of "tx"
 #' @param duration Duration (in days) considered to define the heatwave
-#' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
-#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
-#' @param lat Latitude (NULL) to indicate that latitude information is not used.
+#' @param year Year of interest (e.g. 1990)
+#' @param date.start Date [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within the data (e.g., the agronomic season)
+#' @param date.end Date [in "YYYY-MM-DD" format] defining the end of a portion of interest within the data (e.g., the agronomic season)
+#' @param pnan If the period of interest presents a percentage of NA data above "pnan", it will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used
 #' @author R. Manzanas
 #' @export
 
-nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+nhw <- function(tx, dates, threshold, duration, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        tx.year = tx[ind.year$start:ind.year$end]
-        if (sum(is.na(tx.year)) < 0.01*pnan*length(tx.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          bin = binSpell(tx.year > threshold)
-          index[year == iyear] = sum(bin$len[which(bin$val)] >= duration, na.rm = T)
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      tx.year = tx[ind.year$start:ind.year$end]
+      if (sum(is.na(tx.year)) < 0.01*pnan*length(tx.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        
+        bin = binSpell(tx.year > threshold)
+        if (length(bin$val) == 1) {
+        index = sum(bin$len[which(bin$val)] >= duration, na.rm = T)
+        } else {
+        index = sum(bin$len[which(bin$val)[-1]] >= duration, na.rm = T)
         }
       }
     }
   }
   return(index)
 }
-# index = nhw(tm, dates, 26, 4)  # call to the function
-# index = nhw(tm, dates, 26, 4,  # call to the function
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15])  
 
 ########
 ## dr ##
@@ -374,49 +329,33 @@ nhw <- function(tx, dates, threshold, duration, year = NULL, year.start = NULL, 
 #' @param tn Vector with daily minimum temperature
 #' @param dates Matrix containing the full range of dates corresponding to "tx" and "tn" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+dr <- function(tx, tn, dates, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        tx.year = tx[ind.year$start:ind.year$end]
-        tn.year = tn[ind.year$start:ind.year$end]
-        if (sum(is.na(tx.year)) < 0.01*pnan*length(tx.year) & sum(is.na(tn.year)) < 0.01*pnan*length(tn.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          index[year == iyear] = mean(tx.year - tn.year, na.rm = T)
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      tx.year = tx[ind.year$start:ind.year$end]
+      tn.year = tn[ind.year$start:ind.year$end]
+      if (sum(is.na(tx.year)) < 0.01*pnan*length(tx.year) & sum(is.na(tn.year)) < 0.01*pnan*length(tn.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        index = mean(tx.year - tn.year, na.rm = T)
       }
     }
   }
   return(index)
 }
-# index = dr(tx, tn, dates)  # call to the function
-# index = dr(tx, tn, dates,   # call to the function
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15])  
 
 #############
 ## prcptot ##
@@ -427,48 +366,32 @@ dr <- function(tx, tn, dates, year = NULL, year.start = NULL, year.end = NULL, p
 #' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          index[year == iyear] = sum(pr.year[pr.year >= wet.threshold], na.rm = T)
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        index = sum(pr.year[pr.year >= wet.threshold], na.rm = T)
       }
     }
   }
   return(index)
 }
-# index = prcptot(pr, dates, wet.threshold = 2.5)  # call to the function
-# index = prcptot(pr, dates, wet.threshold = 2.5,  # call to the function
-#            year = 1994:2018, 
-#            year.start = AS.dates[[1]]$sdate$days[, 15], 
-#            year.end = AS.dates[[1]]$edate$days[, 15])  
 
 #########
 ## nrd ##
@@ -479,94 +402,77 @@ prcptot <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL
 #' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-nrd <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+nrd <- function(pr, dates, wet.threshold = 1, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          index[year == iyear] = sum(pr.year >= wet.threshold, na.rm = T)
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        
+        index = sum(pr.year >= wet.threshold, na.rm = T)
       }
     }
   }
   return(index)
 }
-# index = nrd(pr, dates, wet.threshold = 2.5)  # call to the function
-# index = nrd(pr, dates, wet.threshold = 2.5,  # call to the function
-#                 year = 1994:2018, 
-#                 year.start = AS.dates[[1]]$sdate$days[, 15], 
-#                 year.end = AS.dates[[1]]$edate$days[, 15])  
 
 #########
 ## lds ##
 #########
 #' @title Function to compute the average/maximum length of dry (as defined by wet.threshold) spells
-#' @return Average/maximum length of dry spells (per year)
+#' @return Average/maximum length of dry spells 
 #' @param pr Vector with daily precipitation
 #' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
-#' @param length.spell Either "mean" or "maximum" length spell
+#' @param length.spell Either "mean" or "max" length spell
 #' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          bin = binSpell(pr.year < wet.threshold)
-          if (length.spell == "mean") {
-            index[year == iyear] = mean(bin$len[which(bin$val)], na.rm = T)
-          } else if (length.spell == "maximum") {
-            index[year == iyear] = max(bin$len[which(bin$val)], na.rm = T)
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        
+        bin = binSpell(pr.year < wet.threshold)
+        if (length.spell == "mean") {
+          if (length(bin$val) == 1) {
+            index = mean(bin$len[which(bin$val)], na.rm = T)
+          } else {
+            index = mean(bin$len[which(bin$val)[-1]], na.rm = T)
+          }
+        } else if (length.spell == "max") {
+          if (length(bin$val) == 1) {
+            index = max(bin$len[which(bin$val)], na.rm = T)
+          } else {
+            index = max(bin$len[which(bin$val)[-1]], na.rm = T)
           }
         }
       }
@@ -574,16 +480,6 @@ lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL
   }
   return(index)
 }
-# index = lds(pr, dates, length.spell = "mean", wet.threshold = 2.5)  # call to the function
-# index = lds(pr, dates, length.spell = "maximum", wet.threshold = 2.5)  
-# index = lds(pr, dates, length.spell = "mean", wet.threshold = 2.5,  # call to the function
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15])  
-# index = lds(pr, dates, length.spell = "maximum", wet.threshold = 2.5,
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15]) 
 
 ##########
 ## sdii ##
@@ -594,48 +490,32 @@ lds <- function(pr, dates, length.spell = "mean", wet.threshold = 1, year = NULL
 #' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param wet.threshold Threshold considered to define wet days. Must be in the same units of "pr"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+sdii <- function(pr, dates, wet.threshold = 1, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days
-          index[year == iyear] = mean(pr.year[pr.year >= wet.threshold], na.rm = T)
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days
+        index = mean(pr.year[pr.year >= wet.threshold], na.rm = T)
       }
     }
   }
   return(index)
 }
-# index = sdii(pr, dates, wet.threshold = 2.5)  # call to the function
-# index = sdii(pr, dates, wet.threshold = 2.5,  # call to the function
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15])  
 
 ##################
 ## prcptot_thre ##
@@ -646,48 +526,32 @@ sdii <- function(pr, dates, wet.threshold = 1, year = NULL, year.start = NULL, y
 #' @param dates Matrix containing the full range of dates corresponding to "pr" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
 #' @param threshold Threshold considered to define strong rain. Must be in the same units of "pr"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days
-          index[year == iyear] = sum(pr.year[pr.year >= threshold], na.rm = T)
-        }
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days
+        index = sum(pr.year[pr.year >= threshold], na.rm = T)
       }
     }
   }
   return(index)
 }
-# index = prcptot_thre(pr, dates, threshold = 50)  # call to the function
-# index = prcptot_thre(pr, dates, threshold = 2.5,  # call to the function
-#              year = 1994:2018, 
-#              year.start = AS.dates[[1]]$sdate$days[, 15], 
-#              year.end = AS.dates[[1]]$edate$days[, 15])  
 
 ########
 ## ns ##
@@ -700,42 +564,39 @@ prcptot_thre <- function(pr, dates, threshold = 50, year = NULL, year.start = NU
 #' @param duration Duration (in days) of spells
 #' @param type.spell Either "dry" or "wet"
 #' @param year Vector with years of interest (e.g. 1990:1995)
-#' @param year.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
-#' @param year.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
 #' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
 #' @param lat Latitude (NULL) to indicate that latitude information is not used.
 #' @author R. Manzanas
 #' @export
 
-ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NULL, year.start = NULL, year.end = NULL, pnan = 25, lat = NULL) {
+ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
   if(!is.null(lat)) warning("This index doesn't use latitude information.")
   
-  
-  if (is.null(year)) {
-    year = unique(dates[, 1])  # years of analysis
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
   }
   
-  # initializing output
-  index = rep(NA, 1, length(year))  
-  
-  for (iyear in year) {
-    
-    if (!is.null(year.start) & !is.null(year.end)) {
-      ind.year = yearStartEnd(dates, iyear, year.start = year.start[year == iyear], year.end = year.end[year == iyear])  # bounding dates defining the portion of year of interest
-    } else {
-      ind.year = yearStartEnd(dates, iyear, year.start = NULL, year.end = NULL)  # bounding dates defining the year of interest
-    }
-    
-    if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
-      if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
-        pr.year = pr[ind.year$start:ind.year$end]
-        if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
-          
-          bin = binSpell(pr.year >= wet.threshold)
-          if (type.spell == "wet") {
-            index[year == iyear] = sum(bin$len[which(bin$val)] >= duration, na.rm = T)
-          } else if (type.spell == "dry") {
-            index[year == iyear] = sum(bin$len[which(!bin$val)] >= duration, na.rm = T) 
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      pr.year = pr[ind.year$start:ind.year$end]
+      if (sum(is.na(pr.year)) < 0.01*pnan*length(pr.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        
+        bin = binSpell(pr.year >= wet.threshold)
+        if (type.spell == "wet") {
+          if (length(bin$val) == 1) {
+          index = sum(bin$len[which(bin$val)] >= duration, na.rm = T)
+          } else {
+          index = sum(bin$len[which(bin$val)[-1]] >= duration, na.rm = T)
+          }
+        } else if (type.spell == "dry") {
+          if (length(bin$val) == 1) {
+            index = sum(bin$len[which(!bin$val)] >= duration, na.rm = T) 
+          } else {
+          index = sum(bin$len[which(!bin$val)[-1]] >= duration, na.rm = T) 
           }
         }
       }
@@ -743,13 +604,63 @@ ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NU
   }
   return(index)
 }
-# index = ns(pr, dates, wet.threshold = 2.5, duration = 5, type.spell = "dry")  # call to the function
-# index = ns(pr, dates, wet.threshold = 2.5, duration = 5, type.spell = "wet")  
-# index = ns(tm, dates, wet.threshold = 2.5, duration = 5, type.spell = "dry",   # call to the function
-#             year = 1994:2018, 
-#             year.start = AS.dates[[1]]$sdate$days[, 15], 
-#             year.end = AS.dates[[1]]$edate$days[, 15]) 
-# index = ns(tm, dates, wet.threshold = 2.5, duration = 5, type.spell = "wet",   # call to the function
-#            year = 1994:2018, 
-#            year.start = AS.dates[[1]]$sdate$days[, 15], 
-#            year.end = AS.dates[[1]]$edate$days[, 15]) 
+
+###############
+## agg_block ##
+###############
+#' @title Function to aggregate in blocks of consecutive days
+#' @return Number of days (per year)
+#' @param any Vector with data of ANY variable (e.g. daily mean temperature)
+#' @param dates Matrix containing the full range of dates corresponding to "data" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param length.block Number of elements within each block
+#' @param agg.block "sum", "mean", "min", "max". Function to aggregate within each block
+#' @param agg.total "sum", "mean", "min", "max". Function for final aggregation
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
+#' @author R. Manzanas
+#' @export
+
+agg_block <- function(any, dates, length.block, agg.block = "sum", agg.total = "max", year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
+  data <- any
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
+  
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
+  }
+  
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$end) & !is.na(ind.year$end)) {
+      data.year = data[ind.year$start:ind.year$end]
+      if (sum(is.na(data.year)) < 0.01*pnan*length(data.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        sblock = seq(1,length(data.year)-length.block+1)
+        aggb = rep(NA, length(sblock))
+        for (i in sblock) {
+          if (agg.block == "sum") {
+            aggb[i] = sum(d[seq(i, i+(length.block-1))], na.rm = T)
+          } else if (agg.block == "mean") {
+            aggb[i] = mean(d[seq(i, i+(length.block-1))], na.rm = T)
+          } else if (agg.block == "max") {
+            aggb[i] = max(d[seq(i, i+(length.block-1))], na.rm = T)
+          } else if (agg.block == "min") {
+            aggb[i] = min(d[seq(i, i+(length.block-1))], na.rm = T)
+          }
+        }
+        if (agg.total == "sum") {
+          index = sum(aggb, na.rm = T)
+        } else if (agg.total == "mean") {
+          index = mean(aggb, na.rm = T)
+        } else if (agg.total == "max") {
+          index = max(aggb, na.rm = T)
+        } else if (agg.total == "min") {
+          index = min(aggb, na.rm = T)
+        }
+      }
+    }
+  }
+  return(index)
+}
