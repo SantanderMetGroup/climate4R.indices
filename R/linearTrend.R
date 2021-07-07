@@ -155,12 +155,19 @@ linearTrend <- function(grid, p = 0.90){
   lapply(1:getShape(grid,"member"), FUN = function(z) {
     grid %<>% subsetGrid(members = z)
     b <- pval <- irrc <- climatology(grid)
+    if (length(dim(grid$Data)) == 1) {
+      if (isRegular(grid)) {
+        grid$Data <- array(grid$Data,dim = c(dim(grid$Data),1,1))
+        attr(grid$Data,"dimensions") <- c("time","lat","lon")
+      } else {
+        grid$Data <- matrix(grid$Data,nrow = dim(grid$Data), ncol = 1)
+      } 
+    }
     y <- if (isRegular(grid)){
       array3Dto2Dmat(grid$Data)
     } else {
       grid$Data
     }
-    if (length(dim(y)) == 1) y <- matrix(y,nrow = dim(y), ncol = 1)
     aux <- sapply(1:ncol(y), FUN = function(zz) { 
       y <- y[,zz]
       
@@ -251,8 +258,8 @@ linearTrend <- function(grid, p = 0.90){
       irrc$Data <- mat2Dto3Darray(aux[3,,drop = FALSE],x = irrc$xyCoords$x, y = irrc$xyCoords$y)
     } else {
       b$Data <- aux[1,,drop = FALSE]; attr(b$Data,"dimensions") <- c("time","loc")
-      pval$Data <- aux[1,,drop = FALSE]; attr(pval$Data,"dimensions") <- c("time","loc")
-      irrc$Data <- aux[1,,drop = FALSE]; attr(irrc$Data,"dimensions") <- c("time","loc")
+      pval$Data <- aux[2,,drop = FALSE]; attr(pval$Data,"dimensions") <- c("time","loc")
+      irrc$Data <- aux[3,,drop = FALSE]; attr(irrc$Data,"dimensions") <- c("time","loc")
     }
     out <- makeMultiGrid(b,pval,irrc)
     out$Variable$varName <- c("b","pval","irrc")
