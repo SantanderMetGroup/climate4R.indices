@@ -4,7 +4,14 @@
 \alias{indicesENSO}
 \title{Calculation of ENSO indices from grid.}
 \usage{
-indicesENSO(grid, base, ref, season, index.code, members = members)
+indicesENSO(
+  grid,
+  base = NULL,
+  ref = NULL,
+  season = NULL,
+  index.code,
+  members = NULL
+)
 }
 \arguments{
 \item{grid}{A grid (gridded or station dataset), or multimember grid object of sea surface temperature.}
@@ -17,7 +24,7 @@ indicesENSO(grid, base, ref, season, index.code, members = members)
 
 \item{index.code}{Circulation index (or vector of indices with same input variables) to be computed. See \code{circIndexShow()} for details.}
 
-\item{members}{Select number of members.}
+\item{members}{Select number of members. Default: NULL (all members of the grid).}
 }
 \value{
 A list of circulation indices (and members, if applicable) with:

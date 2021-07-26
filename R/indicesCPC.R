@@ -24,7 +24,7 @@
 #' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
 #' @param n.pcs Integer vector with the number of EOFs to be retained for the CPC indices. Default: 10. See details.
 #' @param rot Logical. Should VARIMAX-Rotation be performed? Default: TRUE. This argument is only relevant for CPC indices. See details.
-#' @param members Select number of members.
+#' @param members Select number of members. Default: NULL (all members of the grid).
 #' @param match Character string with the criterion to be used for the detection of CPC indices. Options "spatial" or "temporal". Default: "spatial". See details.
 
 #' @return A list of circulation indices (and members, if applicable) with:
@@ -49,16 +49,23 @@
 #' }
 
 
-indicesCPC <- function(grid, base, ref,
-                       season, index.code, 
-                       match=match, n.pcs=n.pcs, rot=rot, 
-                       members=members){
+indicesCPC <- function(grid, base=NULL, ref=NULL,
+                       season=NULL, index.code, 
+                       match="spatial", n.pcs=10, rot=TRUE, 
+                       members=NULL){
 
     cpc <- NULL 
     cpc.index <- c("NAO", "EA", "WP", "EP/NP", "PNA", "EA/WR", "SCA", "TNH", "POL", "PT")
     ind.tele <- which(cpc.index %in% index.code)
     years <- unique(getYearsAsINDEX(grid))
-
+    if(is.null(season)) season <- getSeason(grid)
+    
+    # *** CHECK MEMBER DIMENSION ***
+    if(is.null(members)) members <- getShape(redim(grid, member=T), "member") else  members <- as.integer(members)
+    if (!(members %in% 1:getShape(redim(grid, member=T), "member"))) {
+      stop("'members' value must be between 1 and the total number of members (", getShape(redim(grid, member=T), "member"), " in this case)", call. = FALSE)
+    }
+    
     # *** READ CPC TELECONNECTION INDICES *** 
     # Downloaded from wget ftp://ftp.cpc.ncep.noaa.gov/wd52dg/data/indices/tele_index.nh
     tele <- read.tele()

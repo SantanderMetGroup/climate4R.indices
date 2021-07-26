@@ -22,7 +22,7 @@
 #' @param base Baseline grid to be substracted for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param ref Reference grid to be added for the calculation of anomalies. Default: NULL. See \code{?scaleGrid}.
 #' @param season Selected month(s) for the calculation. Default: NULL (i.e. as input grid).
-#' @param members Select number of members.
+#' @param members Select number of members. Default: NULL (all members of the grid).
 
 #' @return A list of circulation indices (and members, if applicable) with:
 #' \itemize{
@@ -41,14 +41,21 @@
 #' }
 
 
-indicesENSO <- function(grid, base, ref,
-                       season, index.code, 
-                       members=members){
+indicesENSO <- function(grid, base=NULL, ref=NULL,
+                       season=NULL, index.code, 
+                       members=NULL){
   
   
   enso.index <- c("NINO3.4", "ONI")
   ind.tele <- which(enso.index %in% index.code)
-
+  if(is.null(season)) season <- getSeason(grid)
+  
+  # *** CHECK MEMBER DIMENSION ***
+  if(is.null(members)) members <- getShape(redim(grid, member=T), "member") else  members <- as.integer(members)
+  if (!(members %in% 1:getShape(redim(grid, member=T), "member"))) {
+    stop("'members' value must be between 1 and the total number of members (", getShape(redim(grid, member=T), "member"), " in this case)", call. = FALSE)
+  }
+  
   #  *** CALCULATE MONTHLY ANOMALIES *** 
   data.cen <- redim(scaleGrid(grid, base, ref, time.frame = "monthly", type="center"), member = T)
 

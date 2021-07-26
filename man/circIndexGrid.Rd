@@ -49,7 +49,7 @@ circIndexGrid(
 \item{center.point}{A two value vector that must include lon and lat from a location that will work as center point for the Lamb WT.
 See details.}
 
-\item{members}{Select number of members.}
+\item{members}{Select number of members. Default: NULL (all members of the grid).}
 }
 \value{
 A list of circulation indices (and members, if applicable) with:
