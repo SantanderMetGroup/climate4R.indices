@@ -36,6 +36,46 @@ gdd.th <- function(tm, th = 5) {
 #end
 
 
+
+#' @title Sinusoidal Modified Growing Degree Days 
+#' @description Approximation of the Modified GDD index caluclated from daily maximum an minimum temperatures.
+#' @param tn Vector with DAILY minimum temperature data
+#' @param tx Vector with DAILY maximum temperature data
+#' @param ... Arguments passed to function \code{mgdd.aux} (optional).
+#' Defaults are: th1 = 12, th2 = 18, th3 = 28, th4 = 32, last = 35.
+#' @author M. Iturbide
+#' @export
+
+mgdd.th <- function(tn, tx, ...){
+  args <- list(...)
+  dims <- dim(tn)
+  if(length(dims) < 3) {
+    tn <- abind(tn, NULL, along = length(dims) + 1)
+    tx <- abind(tx, NULL, along = length(dims) + 1)
+    dims <- dim(tn)
+  }
+  t <- seq(1, 24, 1)
+  w <- 2*pi / 24
+  f <- sin(w*t)
+  daymat <- lapply(1:dim(tn)[1], function(i){
+    tni <- tn[i,,]
+    txi <- tx[i,,]
+    a <- do.call("abind", c(rep(list((txi + tni)/2), length(f)), along = 0))
+    b <- (txi-tni)/2
+    b <- do.call("abind", c(lapply(f, function(ii) b * ii), along = 0))
+    args[["tm"]] <- a + b
+    apply(do.call("mgdd.aux", args), MARGIN = 2:3, FUN = mean, na.rm = T)
+  })
+  z <- do.call("abind", c(daymat, along = 0))
+  out <- apply(z, MARGIN = 2:3, FUN = sum)#, na.rm = T)
+  out[which(is.infinite(out))] <- NA
+  out
+}
+
+
+
+#end
+
 #' @title Heating Degree Days (HDD)
 #' @description Symmetrical to the Cooling Degree Day index (CDD), the HDD index is used for illustrating 
 #' energy demand for heating.
@@ -67,20 +107,20 @@ hdd.th <- function(tn, tx, tm, th = 15.5) {
 #' @param tx Matrix or vector with maximum temperature data
 #' @param tm Matrix or vector with mean temperature data
 #' @param th Threshold value (Defalut is 22º)
+#' @param na.rm Logical.
 #' @author M. Iturbide
 #' @references Spinoni, J., Vogt, J., and Barbosa, P. European degree-day climatologies and trends for the period 1951–2011. Int. J. Climatol. 35, 25–36. doi:10.1002/joc.3959.
 #' 
 #' Spinoni, J., Vogt, J. V, Barbosa, P., Dosio, A., McCormick, N., Bigano, A., et al. Changes of heating and cooling degree-days in Europe from 1981 to 2100. Int. J. Climatol. 38, e191–e208. doi:10.1002/joc.5362.
 #' @export
 
-cdd.th <- function(tn, tx, tm, th = 22) {
+cdd.th <- function(tn, tx, tm, th = 22, na.rm = TRUE) {
   arr <- tm
-  th <- 22
   arr[which(th >= tx)] <- 0
   arr[which(th < tx & tm <= th)] <- (tx[which(th < tx & tm <= th)] - th)/4
   arr[which(th < tm & tn <= th)] <- ((tx[which(th < tm & tn <= th)] - th)/2) - ((th - tn[which(th < tm & tn <= th)])/4)
   arr[which(th <= tn)] <- tm[which(th <= tn)] - th
-  apply(arr, MARGIN = 2:3, FUN = "sum", na.rm = TRUE)
+  apply(arr, MARGIN = 2:3, FUN = "sum", na.rm = na.rm)
 }
 
 #end
