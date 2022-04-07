@@ -75,7 +75,7 @@ indexGrid <- function(tn = NULL,
                       max.ncores = 16,
                       ncores = NULL) {
   index.arg.list <- list(...)
-  choices <- c("FD", "TNth", "TXth", "GDD", "MGDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
+  choices <- c("FD", "TNth", "TXth", "GDD", "MGDD", "CDD", "HDD", "CDDD", "MCDDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
                "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
                "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
                "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns")

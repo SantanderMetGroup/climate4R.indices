@@ -54,7 +54,7 @@ mgdd.th <- function(tn, tx, ...){
     tx <- abind(tx, NULL, along = length(dims) + 1)
     dims <- dim(tn)
   }
-  t <- seq(1, 24, 1)
+  t <- seq(0, 23, 1)
   w <- 2*pi / 24
   f <- sin(w*t)
   daymat <- lapply(1:dim(tn)[1], function(i){
@@ -72,7 +72,60 @@ mgdd.th <- function(tn, tx, ...){
   out
 }
 
+# end
 
+#' @title Approximated Cold Degree Days 
+#' @description Approximation of the Modified CDDD index (Cold Degree Days)
+#' caluclated from daily maximum an minimum temperatures.
+#' @param tm Vector with HOURLY mean temperature data
+#' @param th Numeric (T base, default to 6).
+#' @author M. Iturbide
+#' @export
+
+cddd.th <- function(tm, th = 6){
+  sum(th - tm[which(tm < 6)])
+}
+
+#end
+
+#' @title Approximated Cold Degree Days 
+#' @description Approximation of the CDDD index (Cold Degree Days)
+#' caluclated from daily maximum an minimum temperatures.
+#' @param tn Vector with DAILY minimum temperature data
+#' @param tx Vector with DAILY maximum temperature data
+#' @param th Numeric (T base, default to 6).
+#' @author M. Iturbide
+#' @export
+
+mcddd.th <- function(tn, tx, th = 6){
+  aux.fun <- function(x, th){
+    ind0 <- which(x >= 6)
+    x[which(x < 6)] <- th - x[which(x < 6)]
+    x[ind0] <- 0
+    x
+  }
+  dims <- dim(tn)
+  if(length(dims) < 3) {
+    tn <- abind(tn, NULL, along = length(dims) + 1)
+    tx <- abind(tx, NULL, along = length(dims) + 1)
+    dims <- dim(tn)
+  }
+  t <- seq(0, 23, 1)
+  w <- 2*pi / 24
+  f <- sin(w*t)
+  daymat <- lapply(1:dim(tn)[1], function(i){
+    tni <- tn[i,,]
+    txi <- tx[i,,]
+    a <- do.call("abind", c(rep(list((txi + tni)/2), length(f)), along = 0))
+    b <- (txi-tni)/2
+    b <- do.call("abind", c(lapply(f, function(ii) b * ii), along = 0))
+    args <- list("x" = a + b, "th" = th)
+    out <- do.call("aux.fun", args)
+    apply(out, MARGIN = 2:3, FUN = mean, na.rm = T)
+  })
+  z <- do.call("abind", c(daymat, along = 0))
+  apply(z, MARGIN = 2:3, FUN = sum)#, na.rm = T)
+}
 
 #end
 
