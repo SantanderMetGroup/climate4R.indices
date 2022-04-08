@@ -4,15 +4,17 @@
 \alias{cddd.th}
 \title{Approximated Cold Degree Days}
 \usage{
-cddd.th(tm, th = 6)
+cddd.th(tn, tx, th = 6)
 }
 \arguments{
-\item{tm}{Vector with HOURLY mean temperature data}
+\item{tn}{Vector with DAILY minimum temperature data}
+
+\item{tx}{Vector with DAILY maximum temperature data}
 
 \item{th}{Numeric (T base, default to 6).}
 }
 \description{
-Approximation of the Modified CDDD index (Cold Degree Days)
+Approximation of the CDDD index (Cold Degree Days)
 caluclated from daily maximum an minimum temperatures.
 }
 \author{

@@ -74,19 +74,6 @@ mgdd.th <- function(tn, tx, ...){
 
 # end
 
-#' @title Approximated Cold Degree Days 
-#' @description Approximation of the Modified CDDD index (Cold Degree Days)
-#' caluclated from daily maximum an minimum temperatures.
-#' @param tm Vector with HOURLY mean temperature data
-#' @param th Numeric (T base, default to 6).
-#' @author M. Iturbide
-#' @export
-
-cddd.th <- function(tm, th = 6){
-  sum(th - tm[which(tm < 6)])
-}
-
-#end
 
 #' @title Approximated Cold Degree Days 
 #' @description Approximation of the CDDD index (Cold Degree Days)
@@ -97,7 +84,7 @@ cddd.th <- function(tm, th = 6){
 #' @author M. Iturbide
 #' @export
 
-mcddd.th <- function(tn, tx, th = 6){
+cddd.th <- function(tn, tx, th = 6){
   aux.fun <- function(x, th){
     ind0 <- which(x >= 6)
     x[which(x < 6)] <- th - x[which(x < 6)]
