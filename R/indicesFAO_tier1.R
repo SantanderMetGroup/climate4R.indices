@@ -33,7 +33,7 @@
 #' @export
 
 agroindexFAO_tier1 <- function(index.code, ...) {
-  choices <- c("gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "agg_block")
+  choices <- c("gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "ns_general", "agg_block")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   do.call(index.code, list(...))
 }
@@ -599,6 +599,66 @@ ns <- function(pr, dates, wet.threshold, duration, type.spell = "dry", year = NU
           index = sum(bin$len[which(!bin$val)[-1]] >= duration, na.rm = T) 
           }
         }
+      }
+    }
+  }
+  return(index)
+}
+
+##################################################
+## ns_general (more general than previous "ns") ##
+##################################################
+#' @title Function to compute the number of spells (dry, wet, heatwaves, coldwaves, etc.), as defined by threshold and duration
+#' @return Number of spells (per year)
+#' @param any Vector with daily base climate variable (e.g. precipitation, maximum temperature, minimum temperature, etc.)
+#' @param dates Matrix containing the full range of dates corresponding to "a" (ndates x 3 size); e.g. rbind(c(1995, 3, 1), c(1995, 3, 2), ...)
+#' @param threshold Threshold of interest. Must be in the same units of "any"
+#' @param direction "geq" (greater or equal to) or "leq" (lower or equal to)
+#' @param duration Duration (in days) of spells
+#' @param year Vector with years of interest (e.g. 1990:1995)
+#' @param date.start Vector of dates [in "YYYY-MM-DD" format] defining the beginning of a portion of interest within each year (e.g., the agronomic season)
+#' @param date.end Vector of dates [in "YYYY-MM-DD" format] defining the end of a portion of interest within each year (e.g., the agronomic season)
+#' @param pnan Any year with a percentage of NA data above "pnan" will be ignored
+#' @param lat Latitude (NULL) to indicate that latitude information is not used.
+#' @author R. Manzanas
+#' @export
+
+ns_general <- function(any, dates, threshold,  direction, duration, year = NULL, date.start = NULL, date.end = NULL, pnan = 25, lat = NULL) {
+  if(!is.null(lat)) warning("This index doesn't use latitude information.")
+  
+  if (!is.null(date.start) & !is.null(date.end)) {
+    ind.year = yearStartEnd(dates, year = NULL, date.start = date.start, date.end = date.end)  # bounding dates defining a portion of the data
+  } else if (!is.null(year)){
+    ind.year = yearStartEnd(dates, year, date.start = NULL, date.end = NULL)  # bounding dates defining the year of interest
+  }
+  
+  if (length(ind.year$start) != 0 & length(ind.year$end) != 0) {
+    if (!is.na(ind.year$start) & !is.na(ind.year$end)) {
+      any.year = any[ind.year$start:ind.year$end]
+      if (sum(is.na(any.year)) < 0.01*pnan*length(any.year)) {  # asking for a minimum of pnan (%) of non-missing days 
+        
+        bin = binSpell(any.year >= threshold)
+        if (direction == "geq") {
+          if (length(bin$val) == 1 && bin$val) {
+            index = 1
+          } else if (length(bin$val) == 1 && !bin$val) {
+            index = 0
+          } else  {
+            index = sum(bin$len[setdiff(which(bin$val), 1)] >= duration, na.rm = T)
+            if (is.infinite(index) || is.na(index)) index = 0
+          }
+        } else if (direction == "leq") {
+          if (length(bin$val) == 1 && bin$val) {
+            index = 0
+          } else if (length(bin$val) == 1 && !bin$val) {
+            index = 1
+          } else {
+            index = sum(bin$len[setdiff(which(!bin$val), 1)] >= duration, na.rm = T) 
+            if (is.infinite(index) || is.na(index)) index = 0
+          }
+        }
+      } else {
+        index = NA
       }
     }
   }
