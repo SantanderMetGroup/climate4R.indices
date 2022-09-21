@@ -25,13 +25,17 @@ tn.th <- function(tn, th = 0) {sum(tn < th, na.rm = TRUE)}
 #' @description Accumulated sum of the difference between daily mean temperature and the threshold (when higher than the threshold) 
 #' over the primary growing season for mid-latitude agricultural areas in the northern Hemisphere (April-September).
 #' @param tm Vector with mean temperature data
-#' @param th Threshold value (Defalut is 5º)
+#' @param tb Threshold value for Tbase (Defalut is 5º)
+#' @param cth Ceiling threshold over which the sum of growing degrees is 0. If NULL (default) this threshold is not applied.
 #' @author M. Iturbide
 #' @export
 
-gdd.th <- function(tm, th = 5) {
-  ind <- which(tm > th)
-  sum(tm[ind] - th, na.rm = T)
+gdd.th <- function(tm, tb = 5, cth = NULL) {
+  if (!is.null(cth)) {
+    tm[tm > cth] <- tb
+  }
+  ind <- which(tm > tb)
+  sum(tm[ind] - tb, na.rm = T)
 }
 #end
 
