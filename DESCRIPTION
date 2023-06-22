@@ -1,7 +1,7 @@
 Package: climate4R.indices
 Title: Climate Index calculation for climate4R data
-Version: 0.2.0
-Date: 2021-07-08
+Version: 0.3.1
+Date: 2023-06-22
 Description: A climate4R wrapper of the indices.pcic package implementing ETCCDI Climate Indices <http://etccdi.pacificclimate.org/list_27_indices.shtml>.
 Depends: R(>= 3.5.0)
 Imports: transformeR (>= 1.5.2),
