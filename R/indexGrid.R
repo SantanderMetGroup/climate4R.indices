@@ -75,7 +75,7 @@ indexGrid <- function(tn = NULL,
                       max.ncores = 16,
                       ncores = NULL) {
   index.arg.list <- list(...)
-  choices <- c("FD", "TNth", "TXth", "GDD", "CDD", "HDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
+  choices <- c("FD", "TNth", "TXth", "GDD", "MGDD", "CDD", "HDD", "CDDD", "MCDDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
                "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
                "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
                "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "ns_general",
@@ -129,7 +129,13 @@ indexGrid <- function(tn = NULL,
   if (length(grid.list) > 1) {
     grid.list <- intersectGrid(grid.list, type = "temporal", which.return = 1:length(grid.list))
     names(grid.list) <- namesgridlist
-    grid.list <- suppressMessages(lapply(grid.list, function(i) interpGrid(i, getGrid(grid.list[[1]]))))
+    refgrid <- getGrid(grid.list[[1]])
+    indinterp <- which(isFALSE(unlist(lapply(2:length(grid.list), function(i) identical(refgrid, getGrid(grid.list[[i]]))))))
+    if (length(indinterp) > 0)  {
+      grid.list.aux <- suppressMessages(lapply(grid.list[indinterp], function(i) interpGrid(i, getGrid(grid.list[indinterp][[i]]))))
+      grid.list[indinterp] <- grid.list.aux
+      grid.list.aux <- NULL
+    }
   }
   grid.list <- lapply(grid.list, function(r) redim(r, drop = TRUE))
   grid.list <- lapply(grid.list, function(r) redim(r, loc = !unique(unlist(locs))))

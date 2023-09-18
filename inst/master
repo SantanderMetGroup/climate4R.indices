@@ -3,8 +3,10 @@ FD;Number_of_frost_days;tn.th;1;0;0;0;0;days;Count_of_days_when_TN<0degC
 TNth;Number_of_cold_days;tn.th;1;0;0;0;0;days;Count_of_days_when_TN<THdegC
 TXth;Number_of_hot_days;tx.th;0;1;0;0;0;days;Count_of_days_when_TX>THdegC
 GDD;Growing_Degree_Days;gdd.th;0;0;1;0;0;degC;Accumulated_sum_of_degrees_of_and_when_TM>THdegC
+MGDD;Modified_Growing_Degree_Days;mgdd.th;1;1;0;0;0;degC;Accumulated_sum_of_degrees_of_and_when_TM>THdegC
 CDD;Cooling_Degree_Days;cdd.th;1;1;1;0;0;days;Count_of_days_being_TH=22degC
 HDD;Heating_Degree_Days;hdd.th;1;1;1;0;0;days;Count_of_days_being_TH=15.5degC
+CDDD;Modified_Cold_Degree_Days;cddd.th;1;1;0;0;0;degC;Accumulated_sum_of_degrees_of_and_when_TM<THdegC
 P;Percentile;percentile;0;0;0;0;0;;Climate_value_or_percentile
 dt_st_rnagsn;first_Agronomic_Season_start_date;agroindexFAO;1;1;0;1;0;;first_Agronomic_Season_start_date
 nm_flst_rnagsn;Number_of_false_Agronomic_Season_starts;agroindexFAO;1;1;0;1;0;;Number_of_false_starts

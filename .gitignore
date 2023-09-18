@@ -5,3 +5,4 @@
 .Rbuildignore
 climate4R.indices.Rproj
 .Rprofile
+.DS_Store

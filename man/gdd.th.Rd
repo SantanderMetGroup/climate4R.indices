@@ -4,12 +4,14 @@
 \alias{gdd.th}
 \title{Growing Degree Days}
 \usage{
-gdd.th(tm, th = 5)
+gdd.th(tm, tb = 5, cth = NULL)
 }
 \arguments{
 \item{tm}{Vector with mean temperature data}
 
-\item{th}{Threshold value (Defalut is 5º)}
+\item{tb}{Threshold value for Tbase (Defalut is 5º)}
+
+\item{cth}{Ceiling threshold over which the sum of growing degrees is 0. If NULL (default) this threshold is not applied.}
 }
 \description{
 Accumulated sum of the difference between daily mean temperature and the threshold (when higher than the threshold) 

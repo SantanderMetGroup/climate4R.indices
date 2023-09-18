@@ -4,7 +4,7 @@
 \alias{cdd.th}
 \title{Cooling Degree Day (CDD)}
 \usage{
-cdd.th(tn, tx, tm, th = 22)
+cdd.th(tn, tx, tm, th = 22, na.rm = TRUE)
 }
 \arguments{
 \item{tn}{Matrix or vector with minimum temperature data}
@@ -14,6 +14,8 @@ cdd.th(tn, tx, tm, th = 22)
 \item{tm}{Matrix or vector with mean temperature data}
 
 \item{th}{Threshold value (Defalut is 22º)}
+
+\item{na.rm}{Logical.}
 }
 \description{
 Symmetrical to the Heating Degree Day index (HDD), the CDD index is used for illustrating 

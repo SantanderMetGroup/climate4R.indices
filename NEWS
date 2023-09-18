@@ -15,6 +15,14 @@
  * Include new exemplary data: NCEP_slp_2001_2010
  * Bug fix in HDD and CDD indices calculation
  
-## v0.2.0 (on-going) 
+## v0.2.0 (08 Jul 2021) 
  * New function: linearTrend.R --> estimates the slope of the linear trend
+ 
+## v0.3.0 (21 Jun 2023) 
+ * New indices added
+ * Minor bug fixes
+ * New options and default values
+
+## v0.3.1 (22 Jun 2023) 
+ * Update of the DESCRIPTION file
  

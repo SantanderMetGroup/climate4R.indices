@@ -6,14 +6,14 @@
 \usage{
 indicesCPC(
   grid,
-  base,
-  ref,
-  season,
+  base = NULL,
+  ref = NULL,
+  season = NULL,
   index.code,
-  match = match,
-  n.pcs = n.pcs,
-  rot = rot,
-  members = members
+  match = "spatial",
+  n.pcs = 10,
+  rot = TRUE,
+  members = NULL
 )
 }
 \arguments{
@@ -33,7 +33,7 @@ indicesCPC(
 
 \item{rot}{Logical. Should VARIMAX-Rotation be performed? Default: TRUE. This argument is only relevant for CPC indices. See details.}
 
-\item{members}{Select number of members.}
+\item{members}{Select number of members. Default: NULL (all members of the grid).}
 }
 \value{
 A list of circulation indices (and members, if applicable) with:

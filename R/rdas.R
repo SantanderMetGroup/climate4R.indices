@@ -3,7 +3,7 @@
 #' @description This exemplary grid contains monthly mean data of geopotential height at 500hPa from NCEP renalysis, for the period 2001-2010.
 #' This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
 #' log-in is requiered, 
-#' see \code{\link[loadeR.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
+#' see \code{\link[climate4R.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
 #' (package \href{https://github.com/SantanderMetGroup/loadeR}{\code{loadeR}}) in the following manner:
 #' 
 #' \code{loginUDG("username", "pasword")}\cr 
@@ -30,7 +30,7 @@ NULL
 #' @description This exemplary grid contains monthly mean data of sea surface temperature from ERA-Interim renalysis, for the period 1981-2010.
 #' This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
 #' log-in is requiered, 
-#' see \code{\link[loadeR.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
+#' see \code{\link[climate4R.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
 #' (package \href{https://github.com/SantanderMetGroup/loadeR}{\code{loadeR}}) in the following manner:
 #' 
 #' \code{loginUDG("username", "pasword")}\cr 
@@ -57,7 +57,7 @@ NULL
 #' @description This exemplary grid contains daily mean data of sea level pressure from NCEP renalysis, for the period 2001-2010, for a domain in the North-Atlantic.
 #' This R data object was obtained from the UDG server (\url{http://www.meteo.unican.es/udg-tap}, 
 #' log-in is requiered, 
-#' see \code{\link[loadeR.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
+#' see \code{\link[climate4R.UDG]{loginUDG}}) by means of function \code{\link[loadeR]{loadGridData}} 
 #' (package \href{https://github.com/SantanderMetGroup/loadeR}{\code{loadeR}}) in the following manner:
 #' 
 #' \code{loginUDG("username", "pasword")}\cr 
