@@ -21,7 +21,8 @@
 #' @param tx A climate4R dataset of daily maximum temperature (degrees C)
 #' @param tm A climate4R dataset of daily maximum temperature (degrees C)
 #' @param pr A climate4R dataset of daily precipitation (mm)
-#' @param any A climate4R dataset of any variable.
+#' @param wss A climate4R dataset of daily wind speed (m/s)
+#' @param other A climate4R dataset of any variable.
 #' @param baseline Optional climate4R dataset. Only used if \code{index.code = "P"}, for calculating the relevant percentiles.
 #' @param index.code Character string, indicating the specific code of the index (see Details).
 #' @param time.resolution Output time resolution. Choices are "month", "year" (default) and "climatology".
@@ -66,7 +67,8 @@ indexGrid <- function(tn = NULL,
                       tx = NULL,
                       tm = NULL,
                       pr = NULL,
-                      any = NULL,
+                      wss = NULL,
+                      other = NULL,
                       baseline = NULL,
                       index.code,
                       time.resolution = "year",
@@ -78,7 +80,7 @@ indexGrid <- function(tn = NULL,
   choices <- c("FD", "TNth", "TXth", "GDD", "MGDD", "CDD", "HDD", "CDDD", "MCDDD", "P", "dt_st_rnagsn", "nm_flst_rnagsn", 
                "dt_fnst_rnagsn", "dt_ed_rnagsn", "dl_agsn", "dc_agsn", "rn_agsn", 
                "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
-               "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns")
+               "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "pvpot")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
@@ -98,6 +100,9 @@ indexGrid <- function(tn = NULL,
   if (!is.null(pr)) {
     if (getTimeResolution(pr) != "DD") stop("Daily data is required as input", call. = FALSE)
   }
+  if (!is.null(wss)) {
+    if (getTimeResolution(wss) != "DD") stop("Daily data is required as input", call. = FALSE)
+  }
   if (!is.null(baseline)) {
     if (!index.code %in% c("P")) {
       warning("Index.code is not 'P', baseline ignored")
@@ -108,9 +113,9 @@ indexGrid <- function(tn = NULL,
   }
   aux <- read.master()
   metadata <- aux[grep(paste0("^", index.code, "$"), aux$code, fixed = FALSE), ]
-  a <- c(!is.null(tn), !is.null(tx), !is.null(tm), !is.null(pr), !is.null(any)) %>% as.numeric()
+  a <- c(!is.null(tn), !is.null(tx), !is.null(tm), !is.null(pr), !is.null(other), !is.null(wss)) %>% as.numeric()
   if (!index.code %in% c("P")) {
-    b <- metadata[ , 4:8] %>% as.numeric()
+    b <- metadata[ , 4:9] %>% as.numeric()
     if (any(b - a > 0)) {
       stop("The required input variable(s) for ", index.code,
            " index calculation are missing\nType \'?",
@@ -120,7 +125,7 @@ indexGrid <- function(tn = NULL,
     b <- a
     if (sum(b) > 1) stop(index.code, " is applied to single variable.")
   }
-  grid.list <- list("tn" = tn, "tx" = tx, "tm" = tm, "pr" = pr, "any" = any)[which(as.logical(b))]
+  grid.list <- list("tn" = tn, "tx" = tx, "tm" = tm, "pr" = pr, "other" = other, "wss" = wss)[which(as.logical(b))]
   namesgridlist <- names(grid.list)
   # Operations for the consistency of the grids
   locs <- lapply(grid.list, isRegular)
@@ -202,6 +207,7 @@ indexGrid <- function(tn = NULL,
         }
       }
       # EXCEPTION for FAO INDICES (require lat, dates, and NO temporal subsetting)
+      #meter pvpot aqui o hacer una excepción ya que el resultado no son days
       if (metadata$indexfun %in% c("agroindexFAO", "agroindexFAO_tier1")) {
         if (time.resolution != "year") message(index.code, " is calculated yaear by year by definition. argument time.resolution ignored.")
         out.aux <- suppressMessages(aggregateGrid(grid.list.aux[[1]], aggr.y = list(FUN = "mean", na.rm = TRUE)))
@@ -220,6 +226,13 @@ indexGrid <- function(tn = NULL,
         })
         out.aux[["Data"]] <- unname(aperm(do.call("abind", list(latloop, along = 0)), c(3, 1, 2)))
         attr(out.aux[["Data"]], "dimensions") <- c("time", "lat", "lon")
+        out.aux
+      } else if (metadata$indexfun == "pvpot"){
+        out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
+        input.arg.list <- lapply(grid.list.aux, function(d) d[["Data"]])
+        names(input.arg.list)[which(names(input.arg.list) == "other")] <- "rad"
+        out.aux[["Data"]] <- unname(do.call(metadata$indexfun, input.arg.list))
+        attr(out.aux[["Data"]], "dimensions") <- c("time","lat", "lon")
         out.aux
       } else {
         yg <- lapply(years, function(yi){
@@ -258,7 +271,7 @@ indexGrid <- function(tn = NULL,
 #' for the argument \code{index.code} in \code{\link{indexGrid}}
 #' \item \strong{longname}: Long description of the index
 #' \item \strong{index.fun}: The name of the internal function used to calculate it
-#' \item \strong{tn, tx, tm, pr}: A logical value (0/1) indicating the input variables required for index calculation
+#' \item \strong{tn, tx, tm, pr, wss}: A logical value (0/1) indicating the input variables required for index calculation
 #' \item \strong{units}: The units of the index (when different from those of the input variable)
 #' }
 #' @author J. Bedia, M. Iturbide
