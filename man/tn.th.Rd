@@ -4,12 +4,21 @@
 \alias{tn.th}
 \title{Days with minimum temperature below a given threshold}
 \usage{
-tn.th(tn, th = 0)
+tn.th(tn, th = 0, operator = "<")
 }
 \arguments{
 \item{tn}{Vector with minimum temperature data}
 
 \item{th}{Threshold value (Default is 0)}
+
+\item{operator}{Character string specifying the comparison operator (Default is "<"). 
+Must be one of:
+- `"<"`  (less than)
+- `">"`  (greater than)
+- `"<="` (less than or equal to)
+- `">="` (greater than or equal to)
+- `"=="` (equal to)
+- `"!="` (not equal to)}
 }
 \description{
 Annual count of days with maximum temperature above a given threshold

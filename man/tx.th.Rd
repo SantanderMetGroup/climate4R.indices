@@ -4,12 +4,21 @@
 \alias{tx.th}
 \title{Days with maximum temperature above a given threshold}
 \usage{
-tx.th(tx, th)
+tx.th(tx, th, operator = ">")
 }
 \arguments{
 \item{tx}{Vector with minimum temperature data}
 
 \item{th}{Threshold value}
+
+\item{operator}{Character string specifying the comparison operator (Default is ">"). 
+Must be one of:
+- `"<"`  (less than)
+- `">"`  (greater than)
+- `"<="` (less than or equal to)
+- `">="` (greater than or equal to)
+- `"=="` (equal to)
+- `"!="` (not equal to)}
 }
 \description{
 Annual count of days with maximum temperature above a given threshold
