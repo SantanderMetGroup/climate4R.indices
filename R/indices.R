@@ -2,21 +2,61 @@
 #' @description Annual count of days with maximum temperature above a given threshold 
 #' @param tx Vector with minimum temperature data
 #' @param th Threshold value
+#' @param operator Character string specifying the comparison operator (Default is ">"). 
+#'   Must be one of:
+#'   - `"<"`  (less than)
+#'   - `">"`  (greater than)
+#'   - `"<="` (less than or equal to)
+#'   - `">="` (greater than or equal to)
+#'   - `"=="` (equal to)
+#'   - `"!="` (not equal to)
 #' @author M. Iturbide
 #' @export
  
-tx.th <- function(tx, th) {sum(tx > th, na.rm = TRUE)}
-
+tx.th <- function(tx, th, operator = ">") {
+  op <- match.fun(switch(
+    operator,
+    "<" = `<`,
+    ">" = `>`,
+    "<=" = `<=`,
+    ">=" = `>=`,
+    "==" = `==`,
+    "!=" = `!=`,
+    stop("Invalid operator. Use one of: '<', '>', '<=', '>=', '==', '!='")
+  ))
+  sum(op(tx, th), na.rm = TRUE)
+}
 #end
 
 #' @title Days with minimum temperature below a given threshold
 #' @description Annual count of days with maximum temperature above a given threshold 
 #' @param tn Vector with minimum temperature data
 #' @param th Threshold value (Default is 0)
+#' @param operator Character string specifying the comparison operator (Default is "<"). 
+#'   Must be one of:
+#'   - `"<"`  (less than)
+#'   - `">"`  (greater than)
+#'   - `"<="` (less than or equal to)
+#'   - `">="` (greater than or equal to)
+#'   - `"=="` (equal to)
+#'   - `"!="` (not equal to)
 #' @author M. Iturbide
 #' @export
 
-tn.th <- function(tn, th = 0) {sum(tn < th, na.rm = TRUE)}
+tn.th <- function(tn, th = 0, operator = "<") {
+  # Match operator string to the actual R function
+  op <- match.fun(switch(
+    operator,
+    "<" = `<`,
+    ">" = `>`,
+    "<=" = `<=`,
+    ">=" = `>=`,
+    "==" = `==`,
+    "!=" = `!=`,
+    stop("Invalid operator. Use one of: '<', '>', '<=', '>=', '==', '!='")
+  ))
+  sum(op(tn, th), na.rm = TRUE)
+}
 
 #end
 
