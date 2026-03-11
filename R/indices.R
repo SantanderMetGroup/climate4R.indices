@@ -280,4 +280,32 @@ percentile <- function(var, percent = NULL, value = NULL){
 
 #end
 
+#' @title Maximum length of consecutive dry days (R<1)
+#' @description Annual count of days with minimum temperature below/above a given threshold 
+#' @param pr Vector with precipitation data
+#' @param th Threshold below which a day is considered dry (Default is 1)
+#' @author M. Iturbide
+#' @export
+cddx.th <- function(pr, th = 1) {
+  if (length(th) != 1 || !is.numeric(th) || is.na(th)) {
+    stop("'th' must be a single non-missing numeric value.")
+  }
+  
+  # Handle missing values
+  pr <- pr[!is.na(pr)]
+  if (length(pr) == 0) {
+      return(NA)
+  }
+  # Dry day definition
+  dry <- pr <= th
+  
+  # Run-length encoding to find longest dry run
+  r <- rle(dry)
+  
+  if (!any(r$values)) {
+    return(NA)
+  }
+ 
+  as.integer(max(r$lengths[r$values]))
+}
 

@@ -3,6 +3,7 @@ FD;Number_of_frost_days;tn.th;1;0;0;0;0;0;days;Count_of_days_when_TN<0degC
 TNth;Number_of_cold_days;tn.th;1;0;0;0;0;0;days;Count_of_days_when_TN<THdegC_or_TN>THdegC
 TXth;Number_of_hot_days;tx.th;0;1;0;0;0;0;days;Count_of_days_when_TX>THdegC_or_TX<THdegC
 Rth;Number_of_dry_wet_days;tx.th;0;0;0;1;0;0;days;Count_of_days_when_R>THmm_or_R<THmm
+CDDX;Maximum length of consecutive dry days;cddx.th;0;0;0;1;0;0;days;Count_of_consecutive_days_when_R<THmm
 GDD;Growing_Degree_Days;gdd.th;0;0;1;0;0;0;degC;Accumulated_sum_of_degrees_of_and_when_TM>THdegC
 MGDD;Modified_Growing_Degree_Days;mgdd.th;1;1;0;0;0;0;degC;Accumulated_sum_of_degrees_of_and_when_TM>THdegC
 CDD;Cooling_Degree_Days;cdd.th;1;1;1;0;0;0;days;Count_of_days_being_TH=22degC
