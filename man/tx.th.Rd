@@ -2,7 +2,7 @@
 % Please edit documentation in R/indices.R
 \name{tx.th}
 \alias{tx.th}
-\title{Days with maximum temperature above a given threshold}
+\title{Days with maximum temperature below/above a given threshold}
 \usage{
 tx.th(tx, th, operator = ">")
 }
@@ -21,7 +21,7 @@ Must be one of:
 - `"!="` (not equal to)}
 }
 \description{
-Annual count of days with maximum temperature above a given threshold
+Annual count of days with maximum temperature below/above a given threshold
 }
 \author{
 M. Iturbide

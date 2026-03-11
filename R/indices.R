@@ -1,5 +1,5 @@
-#' @title Days with maximum temperature above a given threshold
-#' @description Annual count of days with maximum temperature above a given threshold 
+#' @title Days with maximum temperature below/above a given threshold
+#' @description Annual count of days with maximum temperature below/above a given threshold
 #' @param tx Vector with minimum temperature data
 #' @param th Threshold value
 #' @param operator Character string specifying the comparison operator (Default is ">"). 
@@ -28,8 +28,8 @@ tx.th <- function(tx, th, operator = ">") {
 }
 #end
 
-#' @title Days with minimum temperature below a given threshold
-#' @description Annual count of days with maximum temperature above a given threshold 
+#' @title Days with minimum temperature below/above a given threshold
+#' @description Annual count of days with minimum temperature below/above a given threshold 
 #' @param tn Vector with minimum temperature data
 #' @param th Threshold value (Default is 0)
 #' @param operator Character string specifying the comparison operator (Default is "<"). 
@@ -60,6 +60,36 @@ tn.th <- function(tn, th = 0, operator = "<") {
 
 #end
 
+#' @title Days with precipitation below/above a given threshold
+#' @description Annual count of days with precipitation below/above a given threshold 
+#' @param pr Vector with precipitation data
+#' @param th Threshold value (Default is 0)
+#' @param operator Character string specifying the comparison operator (Default is "<"). 
+#'   Must be one of:
+#'   - `"<"`  (less than)
+#'   - `">"`  (greater than)
+#'   - `"<="` (less than or equal to)
+#'   - `">="` (greater than or equal to)
+#'   - `"=="` (equal to)
+#'   - `"!="` (not equal to)
+#' @author M. Iturbide
+#' @export
+pr.th <- function(pr, th = 1, operator = "<") {
+  # Match operator string to the actual R function
+  op <- match.fun(switch(
+    operator,
+    "<" = `<`,
+    ">" = `>`,
+    "<=" = `<=`,
+    ">=" = `>=`,
+    "==" = `==`,
+    "!=" = `!=`,
+    stop("Invalid operator. Use one of: '<', '>', '<=', '>=', '==', '!='")
+  ))
+  sum(op(pr, th), na.rm = TRUE)
+}
+
+#end
 
 #' @title Growing Degree Days 
 #' @description Accumulated sum of the difference between daily mean temperature and the threshold (when higher than the threshold) 
