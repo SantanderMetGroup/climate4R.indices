@@ -82,6 +82,7 @@ indexGrid <- function(tn = NULL,
                "avrn_agsn", "dc_rnlg_agsn", "tm_agsn", "dc_txh_agsn", "dc_tnh_agsn",
                "gsl", "avg", "nd_thre", "nhw", "dr", "prcptot", "nrd", "lds", "sdii", "prcptot_thre", "ns", "pvpot")
   if (!index.code %in% choices) stop("Non valid index selected: Use indexShow() to select an index.")
+  if (index.code == "pvpot") warning("Parameter time.resolution ignored: pvpot is calculated at the daily scale. Use function aggregateGrid to aggregate the results to the desired time scale.")
   if (index.code == "FD") {
     index.arg.list[["th"]] <- 0
     message("[", Sys.time(), "] th = 0 for index FD. Use index.code = 'TNth' to set a different threshold")
@@ -207,7 +208,6 @@ indexGrid <- function(tn = NULL,
         }
       }
       # EXCEPTION for FAO INDICES (require lat, dates, and NO temporal subsetting)
-      #meter pvpot aqui o hacer una excepción ya que el resultado no son days
       if (metadata$indexfun %in% c("agroindexFAO", "agroindexFAO_tier1")) {
         if (time.resolution != "year") message(index.code, " is calculated yaear by year by definition. argument time.resolution ignored.")
         out.aux <- suppressMessages(aggregateGrid(grid.list.aux[[1]], aggr.y = list(FUN = "mean", na.rm = TRUE)))
@@ -228,7 +228,7 @@ indexGrid <- function(tn = NULL,
         attr(out.aux[["Data"]], "dimensions") <- c("time", "lat", "lon")
         out.aux
       } else if (metadata$indexfun == "pvpot"){
-        out.aux <- suppressMessages(climatology(grid.list.aux[[1]]))
+        out.aux <- suppressMessages(grid.list.aux[[1]])
         input.arg.list <- lapply(grid.list.aux, function(d) d[["Data"]])
         names(input.arg.list)[which(names(input.arg.list) == "other")] <- "rad"
         out.aux[["Data"]] <- unname(do.call(metadata$indexfun, input.arg.list))
