@@ -4,28 +4,25 @@
 \alias{pvpot}
 \title{Photovoltaic potential index (pvpot)}
 \usage{
-pvpot(tm, wss, rad)
+pvpot(tm, wss, rad, clamp = FALSE)
 }
 \arguments{
-\item{tm}{Matrix or vector with mean temperature data (in Celsius ºC)}
+\item{tm}{Numeric vector, array or matrix with mean air temperature in °C.}
 
-\item{wss}{Matrix or vector with mean wind speed data (in meters per second m/s)}
+\item{wss}{Numeric vector, array or matrix with mean wind speed in m s^-1.}
 
-\item{rad}{Matrix or vector with the mean radiation data (in Watios per squared meters W/m²)}
+\item{rad}{Numeric vector, array or matrix with mean surface solar radiation in
+W m^-2. If radiation is provided as accumulated energy in J m^-2, it must be
+converted beforehand by dividing by the accumulation period in seconds
+(e.g. 86400 for daily data, 3600 for hourly data).}
+
+\item{clamp}{Logical. If TRUE, clamp output to the [0, 1] interval.}
 }
 \value{
-A numeric vector or matrix with the photovoltaic potential index, between 0-1.
+Numeric vector, array or matrix with the photovoltaic potential index.
 }
 \description{
-Photovoltaic potential index describing cell potential production with respect to the optimal potential of a global downward shortwave radiation of 1000 W/m2
-}
-\references{
-Chenni, R., M. Makhlouf, T. Kerbache, and A. Bouzid. 2007. A Detailed Modeling Method for Photovoltaic Cells. Energy 32 (9): 1724–30. https://doi.org/10.1016/j.energy.2006.12.006.
-
-Crook, Julia A., Laura A. Jones, Piers M. Forster, and Rolf Crook. 2011. “Climate Change Impacts on Future Photovoltaic and Concentrated Solar Power Energy Output.” Energy & Environmental Science 4 (9): 3101. https://doi.org/10.1039/c1ee01495a.
-
-Jerez, Sonia, Isabelle Tobin, Robert Vautard, Juan Pedro Montávez, Jose María López-Romero, Françoise Thais, Blanka Bartok, et al. 2015. “The Impact of Climate Change on Photovoltaic Power Generation in Europe.” Nature Communications 6 (1): 10014. https://doi.org/10.1038/ncomms10014.
-}
-\author{
-O.Mirones
+Photovoltaic potential index describing cell potential production
+with respect to the optimal potential at a global downward shortwave radiation
+of 1000 W m^-2.
 }
